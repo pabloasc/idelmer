@@ -8,8 +8,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        playfair: ['var(--font-playfair)'],
+      },
       colors: {
-        'newyorker-white': '#f5f5f5',
+        'newyorker-white': '#f8f8f8',
       },
       animation: {
         'blink': 'blink 1s step-end infinite',

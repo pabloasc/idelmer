@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import WordDisplay from '@/components/WordDisplay';
 import ScoreDisplay from '@/components/ScoreDisplay';
+import VictoryDisplay from '@/components/VictoryDisplay';
 
 interface GuessState {
   guess: string;
@@ -35,54 +36,61 @@ const generateColors = (word: string): { [key: string]: string } => {
 
 export default function Home() {
   const [currentWord, setCurrentWord] = useState('');
-  const [letterColors, setLetterColors] = useState({});
   const [guesses, setGuesses] = useState<GuessState[]>([]);
+  const [letterColors, setLetterColors] = useState({});
   const [attempts, setAttempts] = useState(0);
   const [score, setScore] = useState(100);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [hasWon, setHasWon] = useState(false);
 
-  useEffect(() => {
-    const fetchDailyWord = async () => {
-      try {
-        const response = await fetch('/api/daily-word');
-        if (!response.ok) throw new Error('Failed to fetch daily word');
+  const fetchDailyWord = async () => {
+    try {
+      const response = await fetch('/api/daily-word');
+      if (!response.ok) throw new Error('Failed to fetch daily word');
+      
+      const data = await response.json();
+      if (!data.word) throw new Error('No word received from API');
+      
+      const newWord = data.word.toUpperCase();
+      setCurrentWord(newWord);
+      setLetterColors(generateColors(newWord));
+      
+      // Reveal a repeated letter
+      const letterCounts = {};
+      newWord.toLowerCase().split('').forEach(letter => {
+        letterCounts[letter] = (letterCounts[letter] || 0) + 1;
+      });
+      
+      const repeatedLetter = Object.entries(letterCounts)
+        .find(([letter, count]) => Number(count) > 1)?.[0];
         
-        const data = await response.json();
-        if (!data.word) throw new Error('No word received from API');
-        
-        const newWord = data.word.toUpperCase();
-        setCurrentWord(newWord);
-        setLetterColors(generateColors(newWord));
-        
-        // Reveal a repeated letter
-        const letterCounts = {};
-        newWord.toLowerCase().split('').forEach(letter => {
-          letterCounts[letter] = (letterCounts[letter] || 0) + 1;
-        });
-        
-        const repeatedLetter = Object.entries(letterCounts)
-          .find(([letter, count]) => Number(count) > 1)?.[0];
-          
-        setGuesses([{
-          guess: '',
-          revealedLetters: new Set(repeatedLetter ? [repeatedLetter] : [])
-        }]);
-        
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching daily word:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load today\'s word');
-        setLoading(false);
-      }
-    };
+      setGuesses([{
+        guess: '',
+        revealedLetters: new Set(repeatedLetter ? [repeatedLetter] : [])
+      }]);
+      
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching daily word:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load today\'s word');
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {  
     fetchDailyWord();
   }, []);
 
   const handleGuess = (guess: string) => {
     if (!currentWord) return;
     
+    const currentGuessState = guesses[guesses.length - 1];
+    if (guess.toLowerCase() === currentWord.toLowerCase()) {
+      setHasWon(true);
+      return;
+    }
+
     setAttempts(prev => prev + 1);
     
     if (guess.toLowerCase() === currentWord.toLowerCase()) {
@@ -128,7 +136,7 @@ export default function Home() {
   };
 
   const handleHint = () => {
-    if (!currentWord || score <= 0) return;
+    if (!currentWord || score <= 0 || hasWon) return;
 
     const currentRevealedLetters = guesses[guesses.length - 1].revealedLetters;
     const unrevealedLetters = currentWord.toLowerCase().split('')
@@ -145,13 +153,16 @@ export default function Home() {
       { ...prev[prev.length - 1], revealedLetters: newRevealed }
     ]);
 
-    setScore(prev => Math.max(0, prev - 10));
+    setScore(prev => Math.max(0, prev - 25));
   };
 
   if (loading) {
     return (
       <main className="min-h-screen bg-newyorker-white">
         <div className="container mx-auto px-4 py-8">
+          <h1 className="text-5xl font-playfair italic font-bold mb-8 text-center tracking-wide">
+            Idelmer
+          </h1>
           <div className="text-xl text-center">Loading today's word...</div>
         </div>
       </main>
@@ -162,6 +173,9 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-newyorker-white">
         <div className="container mx-auto px-4 py-8">
+          <h1 className="text-5xl font-playfair italic font-bold mb-8 text-center tracking-wide">
+            Idelmer
+          </h1>
           <div className="text-xl text-center text-red-500">{error}</div>
         </div>
       </main>
@@ -171,23 +185,38 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-newyorker-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8 text-center">Word Game</h1>
+        <h1 className="text-5xl font-playfair italic font-bold mb-8 text-center tracking-wide">
+          Idelmer
+        </h1>
         
-        <div className="flex justify-between items-center mb-8">
+        {/* Game Controls Section */}
+        <div className="mb-12">
           <ScoreDisplay attempts={attempts} score={score} />
-          <button
-            onClick={handleHint}
-            disabled={score <= 0}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              score > 0
-                ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Get Hint (-10 points)
-          </button>
+          
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={handleHint}
+              disabled={score <= 0 || hasWon}
+              className={`
+                border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                transition-colors duration-200
+                ${score > 0 && !hasWon
+                  ? 'hover:bg-black hover:text-white'
+                  : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                }
+              `}
+            >
+              Request a Hint
+              <span className="block text-xs mt-1 font-serif">
+                Deducts 25 Points
+              </span>
+            </button>
+          </div>
+          
+          <div className="border-t border-gray-200 my-8" />
         </div>
         
+        {/* Game Board Section */}
         <div className="flex flex-col gap-8">
           {guesses.map((guessState, index) => (
             <WordDisplay
@@ -195,12 +224,16 @@ export default function Home() {
               word={currentWord}
               revealedLetters={guessState.revealedLetters}
               letterColors={letterColors}
-              onGuess={index === guesses.length - 1 ? handleGuess : undefined}
+              onGuess={!hasWon && index === guesses.length - 1 ? handleGuess : undefined}
               guess={guessState.guess}
-              isActive={index === guesses.length - 1}
+              isActive={!hasWon && index === guesses.length - 1}
             />
           ))}
         </div>
+
+        {hasWon && (
+          <VictoryDisplay score={score} attempts={attempts} />
+        )}
       </div>
     </main>
   );
