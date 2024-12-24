@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import WordDisplay from '@/components/WordDisplay';
 import ScoreDisplay from '@/components/ScoreDisplay';
 import VictoryDisplay from '@/components/VictoryDisplay';
+import GameOverDisplay from '@/components/GameOverDisplay';
 
 interface GuessState {
   guess: string;
@@ -43,7 +44,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [hasWon, setHasWon] = useState(false);
-
+  const [hasLost, setHasLost] = useState(false);
   const fetchDailyWord = async () => {
     try {
       const response = await fetch('/api/daily-word');
@@ -78,12 +79,31 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {  
-    fetchDailyWord();
+    useEffect(() => {
+    const fetchWithRetry = async (retries = 3, delay = 1000) => {
+      for (let i = 0; i < retries; i++) {
+        try {
+          await fetchDailyWord();
+          return; // Success, exit retry loop
+        } catch (error) {
+          console.error(`Attempt ${i + 1} failed:`, error);
+          if (i < retries - 1) {
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+      }
+      // All retries failed
+      setError('Unable to load today\'s word after multiple attempts. Please try again later.');
+      setLoading(false);
+    };
+
+    fetchWithRetry();
   }, []);
 
+
   const handleGuess = (guess: string) => {
-    if (!currentWord) return;
+    if (!currentWord || hasWon || hasLost) return;
     
     const currentGuessState = guesses[guesses.length - 1];
     if (guess.toLowerCase() === currentWord.toLowerCase()) {
@@ -131,12 +151,16 @@ export default function Home() {
         { guess: '', revealedLetters: newRevealed }
       ]);
       
-      setScore(prev => Math.max(0, prev - 20));
+      const newScore = Math.max(0, score - 20);
+      setScore(newScore);
+      if (newScore === 0) {
+        setHasLost(true);
+      }
     }
   };
 
   const handleHint = () => {
-    if (!currentWord || score <= 0 || hasWon) return;
+    if (!currentWord || score <= 0 || hasWon || hasLost) return;
 
     const currentRevealedLetters = guesses[guesses.length - 1].revealedLetters;
     const unrevealedLetters = currentWord.toLowerCase().split('')
@@ -153,7 +177,15 @@ export default function Home() {
       { ...prev[prev.length - 1], revealedLetters: newRevealed }
     ]);
 
-    setScore(prev => Math.max(0, prev - 25));
+    const newScore = Math.max(0, score - 25);
+    setScore(newScore);
+    if (newScore === 0) {
+      setHasLost(true);
+    }
+  };
+
+  const handlePlayAgain = () => {
+    window.location.reload();
   };
 
   if (loading) {
@@ -196,11 +228,11 @@ export default function Home() {
           <div className="mt-8 flex justify-center">
             <button
               onClick={handleHint}
-              disabled={score <= 0 || hasWon}
+              disabled={score <= 0 || hasWon || hasLost}
               className={`
                 border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
                 transition-colors duration-200
-                ${score > 0 && !hasWon
+                ${score > 0 && !hasWon && !hasLost
                   ? 'hover:bg-black hover:text-white'
                   : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
                 }
@@ -224,15 +256,23 @@ export default function Home() {
               word={currentWord}
               revealedLetters={guessState.revealedLetters}
               letterColors={letterColors}
-              onGuess={!hasWon && index === guesses.length - 1 ? handleGuess : undefined}
+              onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
               guess={guessState.guess}
-              isActive={!hasWon && index === guesses.length - 1}
+              isActive={!hasWon && !hasLost && index === guesses.length - 1}
             />
           ))}
         </div>
 
         {hasWon && (
           <VictoryDisplay score={score} attempts={attempts} />
+        )}
+
+        {hasLost && (
+          <GameOverDisplay
+            word={currentWord}
+            attempts={attempts}
+            onPlayAgain={handlePlayAgain}
+          />
         )}
       </div>
     </main>

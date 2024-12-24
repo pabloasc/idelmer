@@ -32,7 +32,9 @@ const VictoryDisplay = ({ score, attempts }: VictoryDisplayProps) => {
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold">{attempts}</div>
-              <div className="text-sm uppercase tracking-wider text-gray-600">Attempts</div>
+              <div className="text-sm uppercase tracking-wider text-gray-600">
+                {attempts === 1 ? 'Attempt' : 'Attempts'}
+              </div>
             </div>
           </div>
         </div>

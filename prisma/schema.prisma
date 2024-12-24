@@ -9,16 +9,8 @@ datasource db {
 
 model DailyWord {
   id        Int      @id @default(autoincrement())
-  word      String   @db.VarChar(50)
-  date      DateTime @unique @db.Date
+  word      String
+  date      DateTime @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model WordBank {
-  id        Int      @id @default(autoincrement())
-  word      String   @unique @db.VarChar(50)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  used      Boolean  @default(false)
 }

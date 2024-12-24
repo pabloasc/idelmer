@@ -1,124 +1,93 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
+import { startOfDay } from 'date-fns';
+
+// Create a single PrismaClient instance for reuse
+const prisma = new PrismaClient();
 
 export async function GET() {
+  console.log('Daily word API called at:', new Date().toISOString());
+  
   try {
-    // Get today's date in local timezone
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Get today's date (start of day to match seed data)
+    const today = startOfDay(new Date());
+    console.log('Searching for word on date:', today.toISOString());
 
-    console.log('Fetching word for date:', today.toISOString());
-
-    // Try to get today's word
-    let dailyWord = await prisma.dailyWord.findUnique({
+    // Find today's word with explicit date comparison
+    const dailyWord = await prisma.dailyWord.findFirst({
       where: {
-        date: today,
+        date: {
+          equals: today
+        }
       },
+      select: {
+        word: true,
+        date: true
+      }
     });
 
-    console.log('Existing daily word:', dailyWord);
+    console.log('Database query result:', dailyWord);
 
-    // If no word exists for today, create one
     if (!dailyWord) {
-      console.log('No word found for today, getting a new one...');
-      
-      // Get a random unused word from the word bank
-      const randomWord = await prisma.wordBank.findFirst({
-        where: {
-          used: false,
-        },
-        orderBy: {
-          // Use random() for true randomization
-          id: 'desc',
-        },
-      });
-
-      console.log('Random word found:', randomWord);
-
-      if (!randomWord) {
-        console.log('No unused words found, resetting all words...');
-        // Reset all words to unused if we've used them all
-        await prisma.wordBank.updateMany({
-          data: {
-            used: false,
-          },
-        });
-        
-        // Try getting a word again
-        const resetWord = await prisma.wordBank.findFirst({
-          orderBy: {
-            id: 'desc',
-          },
-        });
-
-        console.log('Reset word found:', resetWord);
-
-        if (!resetWord) {
-          console.error('No words available in word bank at all');
-          throw new Error('No words available in word bank');
-        }
-
-        // Mark this word as used
-        await prisma.wordBank.update({
-          where: {
-            id: resetWord.id,
-          },
-          data: {
-            used: true,
-          },
-        });
-
-        // Create today's word
-        dailyWord = await prisma.dailyWord.create({
-          data: {
-            word: resetWord.word,
-            date: today,
-          },
-        });
-
-        console.log('Created new daily word from reset:', dailyWord);
-      } else {
-        // Mark this word as used
-        await prisma.wordBank.update({
-          where: {
-            id: randomWord.id,
-          },
-          data: {
-            used: true,
-          },
-        });
-
-        // Create today's word
-        dailyWord = await prisma.dailyWord.create({
-          data: {
-            word: randomWord.word,
-            date: today,
-          },
-        });
-
-        console.log('Created new daily word:', dailyWord);
-      }
+      console.error('No word found for date:', today.toISOString());
+      return NextResponse.json(
+        { error: 'No word found for today' },
+        { status: 404 }
+      );
     }
 
-    if (!dailyWord || !dailyWord.word) {
-      console.error('No word available after all attempts');
-      throw new Error('Failed to get or create daily word');
+    // Validate word before returning
+    if (!dailyWord.word || typeof dailyWord.word !== 'string') {
+      console.error('Invalid word data:', dailyWord);
+      return NextResponse.json(
+        { error: 'Invalid word data' },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json({ word: dailyWord.word });
+    console.log('Successfully found word for date:', today.toISOString());
+    return NextResponse.json({ 
+      word: dailyWord.word,
+      date: dailyWord.date 
+    });
+
   } catch (error) {
-    console.error('Error getting daily word:', error);
-    // Log the full error details
-    if (error instanceof Error) {
-      console.error('Error details:', {
+    // Log detailed error information
+    console.error('Error in daily word API:', {
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? {
         message: error.message,
         stack: error.stack,
         name: error.name
-      });
+      } : error
+    });
+
+    // Check for specific database errors
+    if (error instanceof Error) {
+      if (error.message.includes('connection')) {
+        return NextResponse.json(
+          { error: 'Database connection error. Please try again.' },
+          { status: 503 }
+        );
+      }
+      if (error.message.includes('timeout')) {
+        return NextResponse.json(
+          { error: 'Database timeout. Please try again.' },
+          { status: 504 }
+        );
+      }
     }
+
     return NextResponse.json(
-      { error: 'Failed to get daily word' },
+      { error: 'Failed to fetch daily word' },
       { status: 500 }
     );
+  } finally {
+    // Always disconnect from the database
+    try {
+      await prisma.$disconnect();
+    } catch (error) {
+      console.error('Error disconnecting from database:', error);
+    }
   }
 }
