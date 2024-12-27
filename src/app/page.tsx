@@ -5,6 +5,7 @@ import WordDisplay from '@/components/WordDisplay';
 import ScoreDisplay from '@/components/ScoreDisplay';
 import VictoryDisplay from '@/components/VictoryDisplay';
 import GameOverDisplay from '@/components/GameOverDisplay';
+import HintConfirmationModal from '@/components/HintConfirmationModal';
 
 interface GuessState {
   guess: string;
@@ -45,6 +46,8 @@ export default function Home() {
   const [error, setError] = useState('');
   const [hasWon, setHasWon] = useState(false);
   const [hasLost, setHasLost] = useState(false);
+  const [showHintConfirmation, setShowHintConfirmation] = useState(false);
+
   const fetchDailyWord = async () => {
     try {
       const response = await fetch('/api/daily-word');
@@ -161,7 +164,12 @@ export default function Home() {
 
   const handleHint = () => {
     if (!currentWord || score <= 0 || hasWon || hasLost) return;
+    setShowHintConfirmation(true);
+  };
 
+  const confirmHint = () => {
+    setShowHintConfirmation(false);
+    
     const currentRevealedLetters = guesses[guesses.length - 1].revealedLetters;
     const unrevealedLetters = currentWord.toLowerCase().split('')
       .filter(letter => !currentRevealedLetters.has(letter));
@@ -272,6 +280,13 @@ export default function Home() {
             word={currentWord}
             attempts={attempts}
             onPlayAgain={handlePlayAgain}
+          />
+        )}
+
+        {showHintConfirmation && (
+          <HintConfirmationModal
+            onConfirm={confirmHint}
+            onCancel={() => setShowHintConfirmation(false)}
           />
         )}
       </div>

@@ -4,12 +4,12 @@ import { addDays, startOfDay } from 'date-fns';
 const prisma = new PrismaClient();
 
 const words = [
-  'APPLE', 'BEACH', 'CLOUD', 'DREAM', 'EARTH', 
-  'FLAME', 'GRAPE', 'HEART', 'IMAGE', 'JUICE',
-  'KNIFE', 'LEMON', 'MUSIC', 'NIGHT', 'OCEAN',
-  'PEACE', 'QUEEN', 'RIVER', 'STORM', 'TIGER',
-  'UNITY', 'VOICE', 'WATER', 'YOUTH', 'ZEBRA',
-  'BLOOM', 'CHARM', 'DANCE', 'EAGLE', 'FROST'
+  'LETTER', 'COFFEE', 'SUMMER', 'BUBBLE', 'GOOGLE',
+  'PEPPER', 'YELLOW', 'CHEESE', 'SCREEN', 'SOCCER',
+  'MIRROR', 'BUTTER', 'RABBIT', 'COOKIE', 'LITTLE',
+  'BANANA', 'GOOGLE', 'SCHOOL', 'STREET', 'BOTTLE',
+  'MIDDLE', 'OFFICE', 'SLEEPY', 'PRETTY', 'FOOTER',
+  'HAMMER', 'BETTER', 'DINNER', 'PUPPET', 'HAPPY'
 ];
 
 async function main() {
