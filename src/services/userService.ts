@@ -79,11 +79,14 @@ export async function getUserStats(userId: string) {
 }
 
 export async function getLeaderboard() {
-  const response = await fetch('/api/leaderboard');
-
-  if (!response.ok) {
-    throw new Error('Failed to get leaderboard');
+  try {
+    const response = await fetch('/api/leaderboard');
+    if (!response.ok) {
+      throw new Error('Failed to fetch leaderboard');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    throw error;
   }
-
-  return response.json();
 }

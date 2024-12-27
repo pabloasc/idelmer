@@ -45,7 +45,7 @@ export default function Home() {
   const [currentWordId, setCurrentWordId] = useState<number | null>(null);
   const [guesses, setGuesses] = useState<GuessState[]>([]);
   const [letterColors, setLetterColors] = useState({});
-  const [attempts, setAttempts] = useState(0);
+  const [attempts, setAttempts] = useState(1);
   const [score, setScore] = useState(100);
   const [error, setError] = useState('');
   const [hasWon, setHasWon] = useState(false);
@@ -112,7 +112,6 @@ export default function Home() {
     
     const currentGuessState = guesses[guesses.length - 1];
     const isCorrect = guess.toLowerCase() === currentWord.toLowerCase();
-    const newAttempts = attempts + 1;
     
     if (isCorrect) {
       const allLetters = new Set(currentWord.toLowerCase().split(''));
@@ -123,12 +122,13 @@ export default function Home() {
       setHasWon(true);
       // Save score and update user stats
       await Promise.all([
-        createOrUpdateScore(user.id, currentWordId, score, newAttempts, true, true),
+        createOrUpdateScore(user.id, currentWordId, score, attempts, true, true),
         updateUserStats(user.id, true)
       ]).catch(console.error);
       return;
     }
 
+    const newAttempts = attempts + 1;
     setAttempts(newAttempts);
     const newScore = Math.max(0, score - 20);
     setScore(newScore);
@@ -241,9 +241,6 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-newyorker-white">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-5xl font-playfair italic font-bold mb-8 text-center tracking-wide">
-            Idelmer
-          </h1>
           <div className="text-xl text-center">Loading...</div>
         </div>
       </main>
@@ -258,9 +255,6 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-newyorker-white">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-5xl font-playfair italic font-bold mb-8 text-center tracking-wide">
-            Idelmer
-          </h1>
           <div className="text-xl text-center text-red-500">{error}</div>
         </div>
       </main>
@@ -270,33 +264,17 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-newyorker-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-5xl font-playfair italic font-bold mb-8 text-center tracking-wide">
-          Idelmer
-        </h1>
-        
-        {/* User Info & Game Controls Section */}
-        <div className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <div className="text-sm text-gray-600">
-              Signed in as {user.email}
-            </div>
-            <button
-              onClick={() => signOut()}
-              className="text-sm text-gray-600 hover:text-black underline"
-            >
-              Sign out
-            </button>
-          </div>
-          
+        {/* Game Controls Section */}
+        <div className="max-w-2xl mx-auto mb-12 space-y-8">
           <ScoreDisplay attempts={attempts} score={score} />
           
-          <div className="mt-8 flex justify-center">
+          <div className="flex justify-center">
             <button
               onClick={handleHint}
               disabled={score <= 0 || hasWon || hasLost}
               className={`
-                border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
-                transition-colors duration-200
+                border-2 border-black px-6 py-3 text-sm uppercase tracking-wider
+                transition-colors duration-200 rounded-lg shadow-sm
                 ${score > 0 && !hasWon && !hasLost
                   ? 'hover:bg-black hover:text-white'
                   : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
@@ -304,41 +282,45 @@ export default function Home() {
               `}
             >
               Request a Hint
-              <span className="block text-xs mt-1 font-serif">
-                Deducts 25 Points
+              <span className="block text-xs mt-1 font-serif text-gray-600">
+                -25 Points
               </span>
             </button>
           </div>
-          
-          <div className="border-t border-gray-200 my-8" />
         </div>
         
         {/* Game Board Section */}
-        <div className="flex flex-col gap-8">
-          {guesses.map((guessState, index) => (
-            <WordDisplay
-              key={index}
-              word={currentWord}
-              revealedLetters={guessState.revealedLetters}
-              letterColors={letterColors}
-              onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
-              guess={guessState.guess}
-              isActive={!hasWon && !hasLost && index === guesses.length - 1}
-            />
-          ))}
+        <div className="max-w-3xl mx-auto">
+          <div className="flex flex-col gap-4">
+            {guesses.map((guessState, index) => (
+              <WordDisplay
+                key={index}
+                word={currentWord}
+                revealedLetters={guessState.revealedLetters}
+                letterColors={letterColors}
+                onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
+                guess={guessState.guess}
+                isActive={!hasWon && !hasLost && index === guesses.length - 1}
+              />
+            ))}
+          </div>
+
+          {hasWon && (
+            <div className="mt-12">
+              <VictoryDisplay score={score} attempts={attempts} />
+            </div>
+          )}
+
+          {hasLost && (
+            <div className="mt-12">
+              <GameOverDisplay
+                word={currentWord}
+                attempts={attempts}
+                onPlayAgain={handlePlayAgain}
+              />
+            </div>
+          )}
         </div>
-
-        {hasWon && (
-          <VictoryDisplay score={score} attempts={attempts} />
-        )}
-
-        {hasLost && (
-          <GameOverDisplay
-            word={currentWord}
-            attempts={attempts}
-            onPlayAgain={handlePlayAgain}
-          />
-        )}
 
         {showHintConfirmation && (
           <HintConfirmationModal

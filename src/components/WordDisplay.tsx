@@ -152,7 +152,7 @@ const WordDisplay = ({
             autoFocus={isActive}
           />
         )}
-        <div className="flex flex-wrap justify-center gap-8 my-8 relative">
+        <div className="flex flex-wrap justify-center gap-4 my-8 relative">
           {word.split('').map((letter, index) => {
             const pos = letterPositions[index];
             const inputIndex = !pos.isRevealed ? emptyPositions.findIndex(p => p.index === index) : -1;

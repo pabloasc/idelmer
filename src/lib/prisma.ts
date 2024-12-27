@@ -1,10 +1,20 @@
 import { PrismaClient } from '@prisma/client';
 
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    log: ['query', 'error', 'warn'],
+  });
+};
 
-export const prisma = globalForPrisma.prisma || new PrismaClient({
-  log: ['query', 'error', 'warn'],
-});
+declare global {
+  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
+}
+
+export const prisma = globalThis.prisma ?? prismaClientSingleton();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.prisma = prisma;
+}
 
 // Log any errors during database operations
 prisma.$use(async (params, next) => {
@@ -20,5 +30,3 @@ prisma.$use(async (params, next) => {
     throw error;
   }
 });
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
