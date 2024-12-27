@@ -38,35 +38,44 @@ export async function updateUserStats(userId: string, won: boolean) {
   return response.json();
 }
 
-export async function createOrUpdateScore(
+export const createOrUpdateScore = async (
   userId: string,
   wordId: number,
   score: number,
   attempts: number,
   won: boolean,
-  completed: boolean
-) {
-  const response = await fetch('/api/score', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      userId,
-      wordId,
-      score,
-      attempts,
-      won,
-      completed,
-    }),
-  });
+  lost: boolean,
+  lastGuess?: string,
+  revealedLetters?: string[]
+) => {
+  try {
+    const response = await fetch('/api/score', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        wordId,
+        score,
+        attempts,
+        won,
+        lost,
+        lastGuess,
+        revealedLetters,
+      }),
+    });
 
-  if (!response.ok) {
-    throw new Error('Failed to create/update score');
+    if (!response.ok) {
+      throw new Error('Failed to update score');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating score:', error);
+    throw error;
   }
-
-  return response.json();
-}
+};
 
 export async function getUserStats(userId: string) {
   const response = await fetch(`/api/score?userId=${encodeURIComponent(userId)}`);

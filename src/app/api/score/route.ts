@@ -1,19 +1,115 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
+import prisma from '@/lib/prisma';
 
-export async function POST(request: Request) {
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+export async function GET(request: Request) {
+  const cookieStore = cookies();
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  });
+
+  // Get session from cookie
+  const supabaseAuthToken = cookieStore.get('sb-access-token')?.value;
+  
   try {
-    const data = await request.json();
-    const { userId, wordId, score, attempts, won, completed } = data;
-
-    if (!userId || !wordId) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (!supabaseAuthToken) {
+      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+      });
     }
 
-    const scoreRecord = await prisma.score.upsert({
+    const { data: { user }, error: userError } = await supabase.auth.getUser(supabaseAuthToken);
+    
+    if (userError || !user) {
+      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+      });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const wordId = searchParams.get('wordId');
+
+    if (!wordId) {
+      return new NextResponse(JSON.stringify({ error: 'Word ID is required' }), {
+        status: 400,
+      });
+    }
+
+    const score = await prisma.score.findFirst({
+      where: {
+        userId: user.id,
+        wordId: parseInt(wordId),
+      },
+      select: {
+        score: true,
+        attempts: true,
+        won: true,
+        lost: true,
+        lastGuess: true,
+        revealedLetters: true,
+      },
+    });
+
+    return new NextResponse(JSON.stringify(score), {
+      status: 200,
+    });
+  } catch (error) {
+    console.error('Error in GET /api/score:', error);
+    return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+    });
+  }
+}
+
+export async function POST(request: Request) {
+  const cookieStore = cookies();
+  const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+      detectSessionInUrl: false,
+    },
+  });
+
+  // Get session from cookie
+  const supabaseAuthToken = cookieStore.get('sb-access-token')?.value;
+  
+  try {
+    if (!supabaseAuthToken) {
+      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+      });
+    }
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(supabaseAuthToken);
+    
+    if (userError || !user) {
+      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+      });
+    }
+
+    const body = await request.json();
+    const { wordId, score, attempts, won, lost, lastGuess, revealedLetters } = body;
+
+    if (!wordId || typeof score !== 'number' || typeof attempts !== 'number') {
+      return new NextResponse(JSON.stringify({ error: 'Invalid request body' }), {
+        status: 400,
+      });
+    }
+
+    const updatedScore = await prisma.score.upsert({
       where: {
         userId_wordId: {
-          userId,
+          userId: user.id,
           wordId,
         },
       },
@@ -21,53 +117,29 @@ export async function POST(request: Request) {
         score,
         attempts,
         won,
-        completed,
+        lost,
+        lastGuess,
+        revealedLetters,
       },
       create: {
-        userId,
+        userId: user.id,
         wordId,
         score,
         attempts,
         won,
-        completed,
+        lost,
+        lastGuess,
+        revealedLetters,
       },
     });
 
-    return NextResponse.json(scoreRecord);
-  } catch (error) {
-    console.error('Error in score API:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
-
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-
-    if (!userId) {
-      return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
-    }
-
-    const stats = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        highestScore: true,
-        totalGames: true,
-        gamesWon: true,
-        scores: {
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-          include: {
-            word: true,
-          },
-        },
-      },
+    return new NextResponse(JSON.stringify(updatedScore), {
+      status: 200,
     });
-
-    return NextResponse.json(stats);
   } catch (error) {
-    console.error('Error getting user stats:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Error in POST /api/score:', error);
+    return new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+    });
   }
 }
