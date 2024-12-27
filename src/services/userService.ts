@@ -1,28 +1,41 @@
-import { prisma } from '@/lib/prisma';
 import { User } from '@supabase/supabase-js';
 
 export async function createOrUpdateUser(supabaseUser: User) {
-  return await prisma.user.upsert({
-    where: { id: supabaseUser.id },
-    update: {
-      email: supabaseUser.email!,
-      updatedAt: new Date(),
+  const response = await fetch('/api/user', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-    create: {
+    body: JSON.stringify({
       id: supabaseUser.id,
-      email: supabaseUser.email!,
-    },
+      email: supabaseUser.email,
+    }),
   });
+
+  if (!response.ok) {
+    throw new Error('Failed to create/update user');
+  }
+
+  return response.json();
 }
 
 export async function updateUserStats(userId: string, won: boolean) {
-  return await prisma.user.update({
-    where: { id: userId },
-    data: {
-      totalGames: { increment: 1 },
-      gamesWon: won ? { increment: 1 } : undefined,
+  const response = await fetch('/api/user', {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify({
+      userId,
+      won,
+    }),
   });
+
+  if (!response.ok) {
+    throw new Error('Failed to update user stats');
+  }
+
+  return response.json();
 }
 
 export async function createOrUpdateScore(
@@ -33,57 +46,44 @@ export async function createOrUpdateScore(
   won: boolean,
   completed: boolean
 ) {
-  return await prisma.score.upsert({
-    where: {
-      userId_wordId: {
-        userId,
-        wordId,
-      },
+  const response = await fetch('/api/score', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-    update: {
-      score,
-      attempts,
-      won,
-      completed,
-    },
-    create: {
+    body: JSON.stringify({
       userId,
       wordId,
       score,
       attempts,
       won,
       completed,
-    },
+    }),
   });
+
+  if (!response.ok) {
+    throw new Error('Failed to create/update score');
+  }
+
+  return response.json();
 }
 
 export async function getUserStats(userId: string) {
-  return await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      highestScore: true,
-      totalGames: true,
-      gamesWon: true,
-      scores: {
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-        include: {
-          word: true,
-        },
-      },
-    },
-  });
+  const response = await fetch(`/api/score?userId=${encodeURIComponent(userId)}`);
+
+  if (!response.ok) {
+    throw new Error('Failed to get user stats');
+  }
+
+  return response.json();
 }
 
 export async function getLeaderboard() {
-  return await prisma.user.findMany({
-    orderBy: { highestScore: 'desc' },
-    take: 10,
-    select: {
-      email: true,
-      highestScore: true,
-      totalGames: true,
-      gamesWon: true,
-    },
-  });
+  const response = await fetch('/api/leaderboard');
+
+  if (!response.ok) {
+    throw new Error('Failed to get leaderboard');
+  }
+
+  return response.json();
 }
