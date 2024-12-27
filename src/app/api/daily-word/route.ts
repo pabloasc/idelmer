@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { startOfDay } from 'date-fns';
+import { startOfDay, subHours } from 'date-fns';
 
 // Create a single PrismaClient instance for reuse
 const prisma = new PrismaClient();
@@ -9,8 +9,10 @@ export async function GET() {
   console.log('Daily word API called at:', new Date().toISOString());
   
   try {
-    // Get today's date (start of day to match seed data)
-    const today = startOfDay(new Date());
+    // Get today's date in UTC-3 (America/Sao_Paulo timezone)
+    const now = new Date();
+    const utcMinus3 = subHours(now, 3);
+    const today = startOfDay(utcMinus3);
     console.log('Searching for word on date:', today.toISOString());
 
     // Find today's word with explicit date comparison
@@ -21,6 +23,7 @@ export async function GET() {
         }
       },
       select: {
+        id: true,
         word: true,
         date: true
       }
@@ -47,6 +50,7 @@ export async function GET() {
 
     console.log('Successfully found word for date:', today.toISOString());
     return NextResponse.json({ 
+      id: dailyWord.id,
       word: dailyWord.word,
       date: dailyWord.date 
     });

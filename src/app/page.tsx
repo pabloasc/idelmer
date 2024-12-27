@@ -6,6 +6,9 @@ import ScoreDisplay from '@/components/ScoreDisplay';
 import VictoryDisplay from '@/components/VictoryDisplay';
 import GameOverDisplay from '@/components/GameOverDisplay';
 import HintConfirmationModal from '@/components/HintConfirmationModal';
+import { useAuth } from '@/contexts/AuthContext';
+import SignInForm from '@/components/auth/SignInForm';
+import { createOrUpdateScore, updateUserStats } from '@/services/userService';
 
 interface GuessState {
   guess: string;
@@ -37,12 +40,13 @@ const generateColors = (word: string): { [key: string]: string } => {
 };
 
 export default function Home() {
+  const { user, loading, signOut } = useAuth();
   const [currentWord, setCurrentWord] = useState('');
+  const [currentWordId, setCurrentWordId] = useState<number | null>(null);
   const [guesses, setGuesses] = useState<GuessState[]>([]);
   const [letterColors, setLetterColors] = useState({});
   const [attempts, setAttempts] = useState(0);
   const [score, setScore] = useState(100);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [hasWon, setHasWon] = useState(false);
   const [hasLost, setHasLost] = useState(false);
@@ -58,6 +62,7 @@ export default function Home() {
       
       const newWord = data.word.toUpperCase();
       setCurrentWord(newWord);
+      setCurrentWordId(data.id);
       setLetterColors(generateColors(newWord));
       
       // Reveal a repeated letter
@@ -74,15 +79,14 @@ export default function Home() {
         revealedLetters: new Set(repeatedLetter ? [repeatedLetter] : [])
       }]);
       
-      setLoading(false);
+      setError('');
     } catch (err) {
       console.error('Error fetching daily word:', err);
       setError(err instanceof Error ? err.message : 'Failed to load today\'s word');
-      setLoading(false);
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchWithRetry = async (retries = 3, delay = 1000) => {
       for (let i = 0; i < retries; i++) {
         try {
@@ -98,76 +102,97 @@ export default function Home() {
       }
       // All retries failed
       setError('Unable to load today\'s word after multiple attempts. Please try again later.');
-      setLoading(false);
     };
 
     fetchWithRetry();
   }, []);
 
-
-  const handleGuess = (guess: string) => {
-    if (!currentWord || hasWon || hasLost) return;
+  const handleGuess = async (guess: string) => {
+    if (!currentWord || hasWon || hasLost || !user || !currentWordId) return;
     
     const currentGuessState = guesses[guesses.length - 1];
-    if (guess.toLowerCase() === currentWord.toLowerCase()) {
-      setHasWon(true);
-      return;
-    }
-
-    setAttempts(prev => prev + 1);
+    const isCorrect = guess.toLowerCase() === currentWord.toLowerCase();
+    const newAttempts = attempts + 1;
     
-    if (guess.toLowerCase() === currentWord.toLowerCase()) {
+    if (isCorrect) {
       const allLetters = new Set(currentWord.toLowerCase().split(''));
       setGuesses(prev => [
         ...prev.slice(0, -1),
         { guess, revealedLetters: allLetters }
       ]);
-    } else {
-      const newRevealed = new Set(guesses[guesses.length - 1].revealedLetters);
+      setHasWon(true);
+      // Save score and update user stats
+      await Promise.all([
+        createOrUpdateScore(user.id, currentWordId, score, newAttempts, true, true),
+        updateUserStats(user.id, true)
+      ]).catch(console.error);
+      return;
+    }
+
+    setAttempts(newAttempts);
+    const newScore = Math.max(0, score - 20);
+    setScore(newScore);
+    
+    const newRevealed = new Set(guesses[guesses.length - 1].revealedLetters);
       
-      // Check exact matches
-      guess.toLowerCase().split('').forEach((letter, index) => {
-        if (currentWord[index]?.toLowerCase() === letter) {
+    // Check exact matches
+    guess.toLowerCase().split('').forEach((letter, index) => {
+      if (currentWord[index]?.toLowerCase() === letter) {
+        newRevealed.add(letter);
+      }
+    });
+
+    // Check letters in wrong positions
+    const wordLetterCounts = {};
+    currentWord.toLowerCase().split('').forEach(letter => {
+      wordLetterCounts[letter] = (wordLetterCounts[letter] || 0) + 1;
+    });
+
+    const guessLetterCounts = {};
+    guess.toLowerCase().split('').forEach((letter, index) => {
+      if (currentWord[index]?.toLowerCase() !== letter && !newRevealed.has(letter)) {
+        guessLetterCounts[letter] = (guessLetterCounts[letter] || 0) + 1;
+        if (wordLetterCounts[letter] && guessLetterCounts[letter] <= wordLetterCounts[letter]) {
           newRevealed.add(letter);
         }
-      });
-
-      // Check letters in wrong positions
-      const wordLetterCounts = {};
-      currentWord.toLowerCase().split('').forEach(letter => {
-        wordLetterCounts[letter] = (wordLetterCounts[letter] || 0) + 1;
-      });
-
-      const guessLetterCounts = {};
-      guess.toLowerCase().split('').forEach((letter, index) => {
-        if (currentWord[index]?.toLowerCase() !== letter && !newRevealed.has(letter)) {
-          guessLetterCounts[letter] = (guessLetterCounts[letter] || 0) + 1;
-          if (wordLetterCounts[letter] && guessLetterCounts[letter] <= wordLetterCounts[letter]) {
-            newRevealed.add(letter);
-          }
-        }
-      });
+      }
+    });
+    
+    setGuesses(prev => [
+      ...prev.slice(0, -1),
+      { guess, revealedLetters: prev[prev.length - 1].revealedLetters },
+      { guess: '', revealedLetters: newRevealed }
+    ]);
+    
+    // Update score in database
+    try {
+      await createOrUpdateScore(
+        user.id,
+        currentWordId,
+        newScore,
+        newAttempts,
+        false,
+        newScore === 0
+      );
       
-      setGuesses(prev => [
-        ...prev.slice(0, -1),
-        { guess, revealedLetters: prev[prev.length - 1].revealedLetters },
-        { guess: '', revealedLetters: newRevealed }
-      ]);
-      
-      const newScore = Math.max(0, score - 20);
-      setScore(newScore);
       if (newScore === 0) {
         setHasLost(true);
+        await updateUserStats(user.id, false);
       }
+    } catch (error) {
+      console.error('Error saving score:', error);
     }
   };
 
-  const handleHint = () => {
-    if (!currentWord || score <= 0 || hasWon || hasLost) return;
+  const handleHint = async () => {
+    if (!currentWord || score <= 0 || hasWon || hasLost || !user || !currentWordId) return;
+    
     setShowHintConfirmation(true);
   };
 
-  const confirmHint = () => {
+  const confirmHint = async () => {
+    if (!currentWord || !user || !currentWordId) return;
+    
     setShowHintConfirmation(false);
     
     const currentRevealedLetters = guesses[guesses.length - 1].revealedLetters;
@@ -187,8 +212,24 @@ export default function Home() {
 
     const newScore = Math.max(0, score - 25);
     setScore(newScore);
-    if (newScore === 0) {
-      setHasLost(true);
+
+    // Update score in database
+    try {
+      await createOrUpdateScore(
+        user.id,
+        currentWordId,
+        newScore,
+        attempts,
+        false,
+        newScore === 0
+      );
+      
+      if (newScore === 0) {
+        setHasLost(true);
+        await updateUserStats(user.id, false);
+      }
+    } catch (error) {
+      console.error('Error saving score:', error);
     }
   };
 
@@ -203,10 +244,14 @@ export default function Home() {
           <h1 className="text-5xl font-playfair italic font-bold mb-8 text-center tracking-wide">
             Idelmer
           </h1>
-          <div className="text-xl text-center">Loading today's word...</div>
+          <div className="text-xl text-center">Loading...</div>
         </div>
       </main>
     );
+  }
+
+  if (!user) {
+    return <SignInForm />;
   }
 
   if (error) {
@@ -229,8 +274,20 @@ export default function Home() {
           Idelmer
         </h1>
         
-        {/* Game Controls Section */}
+        {/* User Info & Game Controls Section */}
         <div className="mb-12">
+          <div className="flex justify-between items-center mb-6">
+            <div className="text-sm text-gray-600">
+              Signed in as {user.email}
+            </div>
+            <button
+              onClick={() => signOut()}
+              className="text-sm text-gray-600 hover:text-black underline"
+            >
+              Sign out
+            </button>
+          </div>
+          
           <ScoreDisplay attempts={attempts} score={score} />
           
           <div className="mt-8 flex justify-center">

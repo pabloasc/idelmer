@@ -13,4 +13,31 @@ model DailyWord {
   date      DateTime @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  scores    Score[]  // Relation to scores
+}
+
+model User {
+  id            String   @id // This will be the Supabase user ID
+  email         String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  scores        Score[]  // Relation to scores
+  highestScore  Int      @default(0)
+  totalGames    Int      @default(0)
+  gamesWon      Int      @default(0)
+}
+
+model Score {
+  id          Int       @id @default(autoincrement())
+  score       Int
+  attempts    Int
+  completed   Boolean   @default(false)
+  won         Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  userId      String    // Foreign key to User
+  user        User      @relation(fields: [userId], references: [id])
+  wordId      Int       // Foreign key to DailyWord
+  word        DailyWord @relation(fields: [wordId], references: [id])
+
+  @@unique([userId, wordId]) // Each user can only have one score per word
 }
