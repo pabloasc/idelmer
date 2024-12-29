@@ -1,3 +1,4 @@
+import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 
 export async function createOrUpdateUser(supabaseUser: User) {
@@ -39,40 +40,44 @@ export async function updateUserStats(userId: string, won: boolean) {
 }
 
 export const createOrUpdateScore = async (
-  userId: string,
   wordId: number,
   score: number,
   attempts: number,
   won: boolean,
-  lost: boolean,
-  lastGuess?: string,
-  revealedLetters?: string[]
+  timeTaken?: number,
+  hintsUsed?: number
 ) => {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session?.access_token) {
+    throw new Error('No session found');
+  }
+
   try {
     const response = await fetch('/api/score', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({
-        userId,
         wordId,
         score,
         attempts,
         won,
-        lost,
-        lastGuess,
-        revealedLetters,
+        timeTaken,
+        hintsUsed
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to update score');
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to save score');
     }
 
-    return await response.json();
+    return response.json();
   } catch (error) {
-    console.error('Error updating score:', error);
+    console.error('Error in createOrUpdateScore:', error);
     throw error;
   }
 };

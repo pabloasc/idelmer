@@ -1,11 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+import { headers } from 'next/headers';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export const getUser = async () => {
-  const cookieStore = cookies();
+  const headersList = headers();
+  const authHeader = headersList.get('Authorization');
+
+  if (!authHeader?.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authHeader.split(' ')[1];
   const supabase = createClient(supabaseUrl, supabaseKey, {
     auth: {
       autoRefreshToken: false,
@@ -13,16 +20,9 @@ export const getUser = async () => {
       detectSessionInUrl: false,
     },
   });
-
-  // Get session from cookie
-  const supabaseAuthToken = cookieStore.get('sb-access-token')?.value;
   
   try {
-    if (!supabaseAuthToken) {
-      return null;
-    }
-
-    const { data: { user }, error } = await supabase.auth.getUser(supabaseAuthToken);
+    const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
       return null;

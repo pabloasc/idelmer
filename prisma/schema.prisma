@@ -31,13 +31,15 @@ model Score {
   id        Int       @id @default(autoincrement())
   score     Int
   attempts  Int
-  completed Boolean   @default(false)
   won       Boolean   @default(false)
   createdAt DateTime  @default(now())
   userId    String
   wordId    Int
   user      User      @relation(fields: [userId], references: [id])
   word      DailyWord @relation(fields: [wordId], references: [id])
+
+  timeTaken Int?
+  hintsUsed Int?
 
   @@unique([userId, wordId])
 }

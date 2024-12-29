@@ -51,6 +51,7 @@ export default function Home() {
   const [hasWon, setHasWon] = useState(false);
   const [hasLost, setHasLost] = useState(false);
   const [showHintConfirmation, setShowHintConfirmation] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
 
   const fetchDailyWord = async () => {
     try {
@@ -151,6 +152,13 @@ export default function Home() {
     fetchWithRetry();
   }, []);
 
+  useEffect(() => {
+    if (user && !currentWord) {
+      fetchDailyWord();
+      setStartTime(Date.now()); // Reset time when new word is fetched
+    }
+  }, [user]);
+
   const handleGuess = async (guess: string) => {
     if (!currentWord || hasWon || hasLost || !user || !currentWordId) return;
     
@@ -163,6 +171,8 @@ export default function Home() {
       currentGuessState.revealedLetters.has(letter)
     );
     
+    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+
     if (isCorrect || allLettersRevealed) {
       setGuesses(prev => [
         ...prev.slice(0, -1),
@@ -172,14 +182,12 @@ export default function Home() {
       // Save score and update user stats
       await Promise.all([
         createOrUpdateScore(
-          user.id,
           currentWordId,
           score,
           attempts,
           true,
-          false,
-          guess,
-          Array.from(allLetters)
+          timeTaken,
+          0  // hintsUsed
         ),
         updateUserStats(user.id, true)
       ]).catch(console.error);
@@ -230,14 +238,12 @@ export default function Home() {
       // Save score and update user stats
       await Promise.all([
         createOrUpdateScore(
-          user.id,
           currentWordId,
           newScore,
           newAttempts,
           true,
-          false,
-          guess,
-          Array.from(allLetters)
+          timeTaken,
+          0  // hintsUsed
         ),
         updateUserStats(user.id, true)
       ]).catch(console.error);
@@ -253,14 +259,12 @@ export default function Home() {
     // Update score in database
     try {
       await createOrUpdateScore(
-        user.id,
         currentWordId,
         newScore,
         newAttempts,
         false,
-        newScore === 0,
-        guess,
-        Array.from(newRevealed)
+        timeTaken,
+        0  // hintsUsed
       );
       
       if (newScore === 0) {
@@ -305,17 +309,17 @@ export default function Home() {
     const newScore = Math.max(0, score - 25);
     setScore(newScore);
 
+    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+
     // Update score in database
     try {
       await createOrUpdateScore(
-        user.id,
         currentWordId,
         newScore,
         attempts,
         allLettersRevealed,
-        newScore === 0,
-        guesses[guesses.length - 1].guess,
-        Array.from(newRevealed)
+        timeTaken,
+        1  // increment hintsUsed when using a hint
       );
       
       if (newScore === 0) {
