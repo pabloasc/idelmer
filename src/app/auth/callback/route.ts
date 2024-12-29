@@ -1,7 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { createOrUpdateUser } from '@/services/userService';
 
 export async function GET(request: Request) {
   console.log('Auth callback started');
@@ -10,23 +8,9 @@ export async function GET(request: Request) {
 
   if (code) {
     console.log('Auth code received');
-    const cookieStore = cookies();
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-          set(name: string, value: string, options: { path: string; maxAge: number }) {
-            cookieStore.set({ name, value, ...options });
-          },
-          remove(name: string, options: { path: string }) {
-            cookieStore.set({ name, value: '', ...options });
-          },
-        },
-      }
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
     try {
@@ -44,9 +28,6 @@ export async function GET(request: Request) {
       }
 
       console.log('Session obtained, user:', session.user.id);
-      console.log('Creating/updating user in database...');
-      const user = await createOrUpdateUser(session.user);
-      console.log('User created/updated successfully:', user.id);
 
     } catch (error) {
       console.error('Auth callback error:', error);

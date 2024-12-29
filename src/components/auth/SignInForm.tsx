@@ -36,9 +36,6 @@ export default function SignInForm() {
           password,
         });
         if (signInError) throw signInError;
-        if (user) {
-          await createOrUpdateUser(user);
-        }
       }
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred');

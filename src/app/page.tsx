@@ -16,7 +16,7 @@ interface GuessState {
 }
 
 const generateColors = (word: string): { [key: string]: string } => {
-  const colors = {};
+  const colors: { [key: string]: string } = {};
   const uniqueLetters = Array.from(new Set(word.toLowerCase().split('')));
   const colorOptions = [
     'rgba(255, 182, 193, 0.3)', // Light pink
@@ -41,16 +41,17 @@ const generateColors = (word: string): { [key: string]: string } => {
 
 export default function Home() {
   const { user, loading, signOut } = useAuth();
-  const [currentWord, setCurrentWord] = useState('');
+  const [currentWord, setCurrentWord] = useState<string>('');
   const [currentWordId, setCurrentWordId] = useState<number | null>(null);
   const [guesses, setGuesses] = useState<GuessState[]>([]);
-  const [letterColors, setLetterColors] = useState({});
-  const [attempts, setAttempts] = useState(1);
-  const [score, setScore] = useState(100);
-  const [error, setError] = useState('');
-  const [hasWon, setHasWon] = useState(false);
-  const [hasLost, setHasLost] = useState(false);
-  const [showHintConfirmation, setShowHintConfirmation] = useState(false);
+  const [letterColors, setLetterColors] = useState<{ [key: string]: string }>({});
+  const [revealedLetters, setRevealedLetters] = useState<Set<string>>(new Set());
+  const [attempts, setAttempts] = useState<number>(1);
+  const [score, setScore] = useState<number>(100);
+  const [error, setError] = useState<string>('');
+  const [hasWon, setHasWon] = useState<boolean>(false);
+  const [hasLost, setHasLost] = useState<boolean>(false);
+  const [showHintConfirmation, setShowHintConfirmation] = useState<boolean>(false);
   const [startTime, setStartTime] = useState<number | null>(null);
 
   const fetchDailyWord = async () => {
@@ -72,16 +73,23 @@ export default function Home() {
         if (scoreResponse.ok) {
           const scoreData = await scoreResponse.json();
           if (scoreData) {
-            // Reconstruct the game state
-            const allLetters = new Set(newWord.toLowerCase().split(''));
-            const revealedLetters = new Set();
+            // Initialize sets for revealed letters
+            const revealedLetters = new Set<string>();
+            const allLetters = new Set<string>();
 
             // Add all revealed letters
-            newWord.toLowerCase().split('').forEach((letter, index) => {
+            newWord.toLowerCase().split('').forEach((letter: string) => {
               if (scoreData.revealedLetters?.includes(letter)) {
                 revealedLetters.add(letter);
               }
             });
+
+            // Add all letters if game is won
+            if (scoreData.won) {
+              newWord.toLowerCase().split('').forEach((letter: string) => {
+                allLetters.add(letter);
+              });
+            }
 
             setScore(scoreData.score);
             setAttempts(scoreData.attempts);
@@ -111,8 +119,8 @@ export default function Home() {
       
       // If no existing game state, start a new game
       // Reveal a repeated letter
-      const letterCounts = {};
-      newWord.toLowerCase().split('').forEach(letter => {
+      const letterCounts: { [key: string]: number } = {};
+      newWord.toLowerCase().split('').forEach((letter: string) => {
         letterCounts[letter] = (letterCounts[letter] || 0) + 1;
       });
       
@@ -208,13 +216,13 @@ export default function Home() {
     });
 
     // Check letters in wrong positions
-    const wordLetterCounts = {};
-    currentWord.toLowerCase().split('').forEach(letter => {
+    const wordLetterCounts: Record<string, number> = {};
+    currentWord.toLowerCase().split('').forEach((letter: string) => {
       wordLetterCounts[letter] = (wordLetterCounts[letter] || 0) + 1;
     });
 
-    const guessLetterCounts = {};
-    guess.toLowerCase().split('').forEach((letter, index) => {
+    const guessLetterCounts: Record<string, number> = {};
+    guess.toLowerCase().split('').forEach((letter: string, index: number) => {
       if (currentWord[index]?.toLowerCase() !== letter && !newRevealed.has(letter)) {
         guessLetterCounts[letter] = (guessLetterCounts[letter] || 0) + 1;
         if (wordLetterCounts[letter] && guessLetterCounts[letter] <= wordLetterCounts[letter]) {

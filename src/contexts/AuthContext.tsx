@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import { createOrUpdateUser } from '@/services/userService';
 
 interface AuthContextType {
   user: User | null;
@@ -37,12 +36,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (mounted) {
           setUser(session?.user ?? null);
-          if (session?.user) {
-            console.log('Found active session, creating/updating user...');
-            await createOrUpdateUser(session.user).catch(error => {
-              console.error('Error creating/updating user:', error);
-            });
-          }
           setLoading(false);
         }
       } catch (error) {
@@ -62,9 +55,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         if (session?.user) {
           console.log('User authenticated, creating/updating user...');
-          await createOrUpdateUser(session.user).catch(error => {
-            console.error('Error creating/updating user on auth change:', error);
-          });
         }
       }
     });

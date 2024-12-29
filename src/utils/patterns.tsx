@@ -1,9 +1,9 @@
 import React from 'react';
 
-type PatternDefinition = {
+interface PatternDefinition {
   id: string;
-  pattern: React.ReactNode;
-};
+  pattern: JSX.Element;
+}
 
 // All available patterns
 const patterns: { [key: string]: PatternDefinition } = {

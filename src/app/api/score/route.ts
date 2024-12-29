@@ -43,6 +43,8 @@ export async function POST(request: Request) {
       });
     }
 
+    console.log('asd', user);
+
     // Save or update score
     const result = await prisma.score.upsert({
       where: {

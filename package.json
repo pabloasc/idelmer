@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.8.0",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.46",

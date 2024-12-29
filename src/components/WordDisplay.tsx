@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { getPatternForLetter } from '../utils/patterns';
+import { getPatternForLetter } from '@/utils/patterns';
 
 interface WordDisplayProps {
   word: string;
