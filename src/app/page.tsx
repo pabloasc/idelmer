@@ -51,6 +51,7 @@ export default function Home() {
   const [hasWon, setHasWon] = useState(false);
   const [hasLost, setHasLost] = useState(false);
   const [showHintConfirmation, setShowHintConfirmation] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
 
   const fetchDailyWord = async () => {
     try {
@@ -64,7 +65,51 @@ export default function Home() {
       setCurrentWord(newWord);
       setCurrentWordId(data.id);
       setLetterColors(generateColors(newWord));
+
+      // Get existing game state if it exists
+      if (user) {
+        const scoreResponse = await fetch(`/api/score?wordId=${data.id}`);
+        if (scoreResponse.ok) {
+          const scoreData = await scoreResponse.json();
+          if (scoreData) {
+            // Reconstruct the game state
+            const allLetters = new Set(newWord.toLowerCase().split(''));
+            const revealedLetters = new Set();
+
+            // Add all revealed letters
+            newWord.toLowerCase().split('').forEach((letter, index) => {
+              if (scoreData.revealedLetters?.includes(letter)) {
+                revealedLetters.add(letter);
+              }
+            });
+
+            setScore(scoreData.score);
+            setAttempts(scoreData.attempts);
+            setHasWon(scoreData.won);
+            setHasLost(scoreData.lost);
+
+            // Check if all letters are revealed
+            const allLettersRevealed = Array.from(allLetters).every(letter => 
+              revealedLetters.has(letter)
+            );
+
+            if (allLettersRevealed || scoreData.won) {
+              setGuesses([{
+                guess: scoreData.lastGuess || '',
+                revealedLetters: allLetters
+              }]);
+            } else {
+              setGuesses([{
+                guess: scoreData.lastGuess || '',
+                revealedLetters
+              }]);
+            }
+            return;
+          }
+        }
+      }
       
+      // If no existing game state, start a new game
       // Reveal a repeated letter
       const letterCounts = {};
       newWord.toLowerCase().split('').forEach(letter => {
@@ -107,22 +152,43 @@ export default function Home() {
     fetchWithRetry();
   }, []);
 
+  useEffect(() => {
+    if (user && !currentWord) {
+      fetchDailyWord();
+      setStartTime(Date.now()); // Reset time when new word is fetched
+    }
+  }, [user]);
+
   const handleGuess = async (guess: string) => {
     if (!currentWord || hasWon || hasLost || !user || !currentWordId) return;
     
     const currentGuessState = guesses[guesses.length - 1];
     const isCorrect = guess.toLowerCase() === currentWord.toLowerCase();
+    const allLetters = new Set(currentWord.toLowerCase().split(''));
     
-    if (isCorrect) {
-      const allLetters = new Set(currentWord.toLowerCase().split(''));
+    // Check if all letters are revealed
+    const allLettersRevealed = Array.from(allLetters).every(letter => 
+      currentGuessState.revealedLetters.has(letter)
+    );
+    
+    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+
+    if (isCorrect || allLettersRevealed) {
       setGuesses(prev => [
         ...prev.slice(0, -1),
-        { guess, revealedLetters: allLetters }
+        { guess: isCorrect ? guess : prev[prev.length - 1].guess, revealedLetters: allLetters }
       ]);
       setHasWon(true);
       // Save score and update user stats
       await Promise.all([
-        createOrUpdateScore(user.id, currentWordId, score, attempts, true, true),
+        createOrUpdateScore(
+          currentWordId,
+          score,
+          attempts,
+          true,
+          timeTaken,
+          0  // hintsUsed
+        ),
         updateUserStats(user.id, true)
       ]).catch(console.error);
       return;
@@ -158,6 +224,32 @@ export default function Home() {
       }
     });
     
+    // Check if all letters are revealed after this guess
+    const allLettersRevealedAfterGuess = Array.from(allLetters).every(letter => 
+      newRevealed.has(letter)
+    );
+    
+    if (allLettersRevealedAfterGuess) {
+      setGuesses(prev => [
+        ...prev.slice(0, -1),
+        { guess, revealedLetters: allLetters }
+      ]);
+      setHasWon(true);
+      // Save score and update user stats
+      await Promise.all([
+        createOrUpdateScore(
+          currentWordId,
+          newScore,
+          newAttempts,
+          true,
+          timeTaken,
+          0  // hintsUsed
+        ),
+        updateUserStats(user.id, true)
+      ]).catch(console.error);
+      return;
+    }
+    
     setGuesses(prev => [
       ...prev.slice(0, -1),
       { guess, revealedLetters: prev[prev.length - 1].revealedLetters },
@@ -167,12 +259,12 @@ export default function Home() {
     // Update score in database
     try {
       await createOrUpdateScore(
-        user.id,
         currentWordId,
         newScore,
         newAttempts,
         false,
-        newScore === 0
+        timeTaken,
+        0  // hintsUsed
       );
       
       if (newScore === 0) {
@@ -184,9 +276,8 @@ export default function Home() {
     }
   };
 
-  const handleHint = async () => {
+  const handleHint = () => {
     if (!currentWord || score <= 0 || hasWon || hasLost || !user || !currentWordId) return;
-    
     setShowHintConfirmation(true);
   };
 
@@ -205,6 +296,11 @@ export default function Home() {
     const newRevealed = new Set(currentRevealedLetters);
     newRevealed.add(randomLetter);
 
+    const allLetters = new Set(currentWord.toLowerCase().split(''));
+    const allLettersRevealed = Array.from(allLetters).every(letter => 
+      newRevealed.has(letter)
+    );
+
     setGuesses(prev => [
       ...prev.slice(0, -1),
       { ...prev[prev.length - 1], revealedLetters: newRevealed }
@@ -213,20 +309,25 @@ export default function Home() {
     const newScore = Math.max(0, score - 25);
     setScore(newScore);
 
+    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+
     // Update score in database
     try {
       await createOrUpdateScore(
-        user.id,
         currentWordId,
         newScore,
         attempts,
-        false,
-        newScore === 0
+        allLettersRevealed,
+        timeTaken,
+        1  // increment hintsUsed when using a hint
       );
       
       if (newScore === 0) {
         setHasLost(true);
         await updateUserStats(user.id, false);
+      } else if (allLettersRevealed) {
+        setHasWon(true);
+        await updateUserStats(user.id, true);
       }
     } catch (error) {
       console.error('Error saving score:', error);
@@ -256,6 +357,16 @@ export default function Home() {
       <main className="min-h-screen bg-newyorker-white">
         <div className="container mx-auto px-4 py-8">
           <div className="text-xl text-center text-red-500">{error}</div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!currentWord) {
+    return (
+      <main className="min-h-screen bg-newyorker-white">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-xl text-center">Loading today's word...</div>
         </div>
       </main>
     );
