@@ -8,7 +8,7 @@ import GameOverDisplay from '@/components/GameOverDisplay';
 import HintConfirmationModal from '@/components/HintConfirmationModal';
 import { useAuth } from '@/contexts/AuthContext';
 import SignInForm from '@/components/auth/SignInForm';
-import { createOrUpdateScore, updateUserStats } from '@/services/userService';
+import { createOrUpdateScore } from '@/services/userService';
 
 interface GuessState {
   guess: string;
@@ -189,7 +189,6 @@ export default function Home() {
           timeTaken,
           0  // hintsUsed
         ),
-        updateUserStats(user.id, true)
       ]).catch(console.error);
       return;
     }
@@ -244,8 +243,7 @@ export default function Home() {
           true,
           timeTaken,
           0  // hintsUsed
-        ),
-        updateUserStats(user.id, true)
+        )
       ]).catch(console.error);
       return;
     }
@@ -269,7 +267,6 @@ export default function Home() {
       
       if (newScore === 0) {
         setHasLost(true);
-        await updateUserStats(user.id, false);
       }
     } catch (error) {
       console.error('Error saving score:', error);
@@ -324,10 +321,8 @@ export default function Home() {
       
       if (newScore === 0) {
         setHasLost(true);
-        await updateUserStats(user.id, false);
       } else if (allLettersRevealed) {
         setHasWon(true);
-        await updateUserStats(user.id, true);
       }
     } catch (error) {
       console.error('Error saving score:', error);

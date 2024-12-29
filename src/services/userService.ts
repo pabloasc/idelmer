@@ -20,24 +20,6 @@ export async function createOrUpdateUser(supabaseUser: User) {
   return response.json();
 }
 
-export async function updateUserStats(userId: string, won: boolean) {
-  const response = await fetch('/api/user', {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      userId,
-      won,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to update user stats');
-  }
-
-  return response.json();
-}
 
 export const createOrUpdateScore = async (
   wordId: number,
