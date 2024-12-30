@@ -35,8 +35,13 @@ async function updateUser(userId: string, data: any) {
 export async function POST(request: Request) {
   try {
     const { id, email } = await request.json();
-    const user = await createUser(id, email);
-    return NextResponse.json(user);
+    const existingUser = await getUserById(id);
+    if (!existingUser) {
+      const user = await createUser(id, email);
+      return NextResponse.json(user);
+    }
+    return NextResponse.json(existingUser);
+    
   } catch (error) {
     console.error('Error in POST /api/user:', error);
     return NextResponse.json(

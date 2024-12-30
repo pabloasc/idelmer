@@ -82,7 +82,7 @@ export async function createOrUpdateScore(scoreData: ScoreData) {
     }
 
     // Ensure the user exists in the database
-    //await createOrUpdateUser(user);
+    await createOrUpdateUser(user);
 
     const token = await supabase.auth.getSession().then(({ data }) => data.session?.access_token);
 
