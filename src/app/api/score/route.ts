@@ -4,97 +4,65 @@ import { prisma } from '@/lib/prisma';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request: Request) {
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  const authHeader = request.headers.get('Authorization');
-
-  // Validate authentication
-  if (!authHeader?.startsWith('Bearer ')) {
-    return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-    });
-  }
-
-  const token = authHeader.split(' ')[1];
-
   try {
-    // Verify user authentication
+    const authHeader = request.headers.get('Authorization');
+
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.split(' ')[1];
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-      });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Parse request body
-    const body = await request.json();
-    const { wordId, score, attempts, won, timeTaken, hintsUsed } = body;
+    const { wordId, score, attempts, won, timeTaken, hintsUsed } = await request.json();
 
-    // Validate required fields
-    if (!wordId || score === undefined || attempts === undefined || won === undefined) {
-      return new NextResponse(JSON.stringify({ 
-        error: 'Bad Request', 
-        message: 'Missing required fields',
-        received: { wordId, score, attempts, won }
-      }), {
-        status: 400,
-      });
-    }
-
-    console.log('asd', user);
-
-    // Save or update score
-    const result = await prisma.score.upsert({
+    const newScore = await prisma.score.upsert({
       where: {
         userId_wordId: {
           userId: user.id,
           wordId,
         },
       },
-      update: {
-        score,
-        attempts,
-        won,
-        timeTaken,
-        hintsUsed
-      },
       create: {
-        userId: user.id,
         wordId,
         score,
         attempts,
         won,
         timeTaken,
-        hintsUsed
+        hintsUsed,
+        userId: user.id,
+      },
+      update: {
+        score,
+        attempts,
+        won,
+        timeTaken,
+        hintsUsed,
       },
     });
 
-    return NextResponse.json({ 
-      message: 'Score saved successfully', 
-      data: result 
-    });
-
+    return NextResponse.json(newScore);
   } catch (error) {
-    console.error('Error saving score:', error);
-    return new NextResponse(JSON.stringify({ 
-      error: 'Internal Server Error',
-      message: error instanceof Error ? error.message : 'Unknown error occurred'
-    }), {
-      status: 500,
-    });
+    console.error('Error in POST /api/score:', error);
+    return NextResponse.json(
+      { error: 'Failed to save score' },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET(request: Request) {
-  const supabase = createClient(supabaseUrl, supabaseKey);
   const authHeader = request.headers.get('Authorization');
 
   if (!authHeader?.startsWith('Bearer ')) {
-    return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-    });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const token = authHeader.split(' ')[1];
@@ -103,12 +71,9 @@ export async function GET(request: Request) {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
 
     if (userError || !user) {
-      return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-      });
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's scores
     const scores = await prisma.score.findMany({
       where: {
         userId: user.id,
@@ -133,11 +98,9 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('Error retrieving scores:', error);
-    return new NextResponse(JSON.stringify({ 
-      error: 'Internal Server Error',
-      message: error instanceof Error ? error.message : 'Unknown error occurred'
-    }), {
-      status: 500,
-    });
+    return NextResponse.json(
+      { error: 'Internal Server Error', message: error instanceof Error ? error.message : 'Unknown error occurred' },
+      { status: 500 }
+    );
   }
 }

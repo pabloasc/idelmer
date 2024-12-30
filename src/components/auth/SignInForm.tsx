@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { createOrUpdateUser } from '@/services/userService';
 
 export default function SignInForm() {
   const [email, setEmail] = useState('');
@@ -26,9 +25,6 @@ export default function SignInForm() {
           },
         });
         if (signUpError) throw signUpError;
-        if (user) {
-          await createOrUpdateUser(user);
-        }
         alert('Check your email for the confirmation link!');
       } else {
         const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({

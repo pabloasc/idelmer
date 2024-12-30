@@ -15,6 +15,15 @@ interface GuessState {
   revealedLetters: Set<string>;
 }
 
+interface ScoreData {
+  wordId: number;
+  score: number;
+  attempts: number;
+  won: boolean;
+  timeTaken: number;
+  hintsUsed: number;
+}
+
 const generateColors = (word: string): { [key: string]: string } => {
   const colors: { [key: string]: string } = {};
   const uniqueLetters = Array.from(new Set(word.toLowerCase().split('')));
@@ -189,14 +198,14 @@ export default function Home() {
       setHasWon(true);
       // Save score and update user stats
       await Promise.all([
-        createOrUpdateScore(
-          currentWordId,
-          score,
-          attempts,
-          true,
-          timeTaken,
-          0  // hintsUsed
-        ),
+        createOrUpdateScore({
+          wordId: currentWordId,
+          score: score,
+          attempts: attempts,
+          won: true,
+          timeTaken: timeTaken,
+          hintsUsed: 1
+        }),
       ]).catch(console.error);
       return;
     }
@@ -217,12 +226,12 @@ export default function Home() {
 
     // Check letters in wrong positions
     const wordLetterCounts: Record<string, number> = {};
-    currentWord.toLowerCase().split('').forEach((letter: string) => {
+    currentWord.toLowerCase().split('').forEach(letter => {
       wordLetterCounts[letter] = (wordLetterCounts[letter] || 0) + 1;
     });
 
     const guessLetterCounts: Record<string, number> = {};
-    guess.toLowerCase().split('').forEach((letter: string, index: number) => {
+    guess.toLowerCase().split('').forEach((letter, index) => {
       if (currentWord[index]?.toLowerCase() !== letter && !newRevealed.has(letter)) {
         guessLetterCounts[letter] = (guessLetterCounts[letter] || 0) + 1;
         if (wordLetterCounts[letter] && guessLetterCounts[letter] <= wordLetterCounts[letter]) {
@@ -244,14 +253,14 @@ export default function Home() {
       setHasWon(true);
       // Save score and update user stats
       await Promise.all([
-        createOrUpdateScore(
-          currentWordId,
-          newScore,
-          newAttempts,
-          true,
-          timeTaken,
-          0  // hintsUsed
-        )
+        createOrUpdateScore({
+          wordId: currentWordId,
+          score: newScore,
+          attempts: newAttempts,
+          won: true,
+          timeTaken: timeTaken,
+          hintsUsed: 2
+        })
       ]).catch(console.error);
       return;
     }
@@ -262,23 +271,18 @@ export default function Home() {
       { guess: '', revealedLetters: newRevealed }
     ]);
     
-    // Update score in database
-    try {
-      await createOrUpdateScore(
-        currentWordId,
-        newScore,
-        newAttempts,
-        false,
-        timeTaken,
-        0  // hintsUsed
-      );
-      
       if (newScore === 0) {
         setHasLost(true);
+
+        await createOrUpdateScore({
+          wordId: currentWordId,
+          score: newScore,
+          attempts: newAttempts,
+          won: false,
+          timeTaken: timeTaken,
+          hintsUsed: 3
+        });
       }
-    } catch (error) {
-      console.error('Error saving score:', error);
-    }
   };
 
   const handleHint = () => {
@@ -318,14 +322,14 @@ export default function Home() {
 
     // Update score in database
     try {
-      await createOrUpdateScore(
-        currentWordId,
-        newScore,
-        attempts,
-        allLettersRevealed,
-        timeTaken,
-        1  // increment hintsUsed when using a hint
-      );
+      await createOrUpdateScore({
+        wordId: currentWordId,
+        score: newScore,
+        attempts: attempts,
+        won: allLettersRevealed,
+        timeTaken: timeTaken,
+        hintsUsed: 1
+      });
       
       if (newScore === 0) {
         setHasLost(true);

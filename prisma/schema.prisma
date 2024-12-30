@@ -17,14 +17,15 @@ model DailyWord {
 }
 
 model User {
-  id           String   @id
-  email        String   @unique
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  highestScore Int      @default(0)
-  totalGames   Int      @default(0)
-  gamesWon     Int      @default(0)
-  scores       Score[]
+  id            String   @id
+  email         String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  totalScore    Int      @default(0)
+  totalGames    Int      @default(0)
+  gamesWon      Int      @default(0)
+  currentStreak Int      @default(0)
+  scores        Score[]
 }
 
 model Score {
