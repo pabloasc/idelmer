@@ -151,9 +151,12 @@ export default function Home() {
 
   useEffect(() => {
     const fetchWithRetry = async (retries = 3, delay = 1000) => {
+      if (!user) return; // Don't fetch if user is not logged in
+      
       for (let i = 0; i < retries; i++) {
         try {
           await fetchDailyWord();
+          setStartTime(Date.now()); // Reset time when new word is fetched
           return; // Success, exit retry loop
         } catch (error) {
           console.error(`Attempt ${i + 1} failed:`, error);
@@ -167,15 +170,10 @@ export default function Home() {
       setError('Unable to load today\'s word after multiple attempts. Please try again later.');
     };
 
-    fetchWithRetry();
-  }, []);
-
-  useEffect(() => {
-    if (user && !currentWord) {
-      fetchDailyWord();
-      setStartTime(Date.now()); // Reset time when new word is fetched
+    if (user && (!currentWord || !startTime)) {
+      fetchWithRetry();
     }
-  }, [user]);
+  }, [user]); // Add user as dependency
 
   const handleGuess = async (guess: string) => {
     if (!currentWord || hasWon || hasLost || !user || !currentWordId) return;
