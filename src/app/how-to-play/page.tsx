@@ -114,8 +114,6 @@ export default function HowToPlay() {
           <div className="prose prose-lg mx-auto">
             <h2 className="font-playfair text-2xl mb-4">Tips for Success</h2>
             <ul className="font-serif text-gray-700 space-y-4">
-              <li>Start with words that have common letters (E, A, R, I, O)</li>
-              <li>Pay attention to revealed letter positions</li>
               <li>Use hints strategically when stuck</li>
               <li>Track your progress on the leaderboard</li>
             </ul>

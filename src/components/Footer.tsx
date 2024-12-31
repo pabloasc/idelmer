@@ -12,7 +12,7 @@ export default function Footer() {
         <div className="text-center mb-6">
           <h2 className="font-playfair italic text-2xl mb-3">Idelmer</h2>
           <p className="text-gray-600 text-sm font-serif">
-            A daily word puzzle inspired by The New Yorker
+            A daily word puzzle game.
           </p>
         </div>
 

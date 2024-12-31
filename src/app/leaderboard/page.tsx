@@ -5,13 +5,27 @@ import { getLeaderboard } from '@/services/userService';
 
 interface LeaderboardEntry {
   email: string;
-  highestScore: number;
+  totalScore: number;
   totalGames: number;
   gamesWon: number;
+  winRate: string;
+  currentStreak: number;
+  averageScore: number;
+  averageTime: number;
+  totalHints: number;
 }
 
 const getUsername = (email: string) => {
   return email.split('@')[0];
+};
+
+const formatTime = (seconds: number) => {
+  if (seconds === 0) return '-';
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return minutes > 0 
+    ? `${minutes}m ${remainingSeconds}s`
+    : `${remainingSeconds}s`;
 };
 
 export default function LeaderboardPage() {
@@ -37,7 +51,7 @@ export default function LeaderboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-newyorker-white flex items-center justify-center">
+      <div className="flex items-center justify-center p-8">
         <div className="text-xl">Loading...</div>
       </div>
     );
@@ -45,71 +59,54 @@ export default function LeaderboardPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-newyorker-white flex items-center justify-center">
+      <div className="flex items-center justify-center p-8">
         <div className="text-xl text-red-500">{error}</div>
       </div>
     );
   }
 
+  if (!leaderboard || leaderboard.length === 0) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-xl text-gray-500">No leaderboard data available yet</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-newyorker-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-playfair italic font-bold text-center mb-12">
-          Leaderboard
-        </h1>
-        
-        <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Rank
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Player
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Highest Score
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Games Won
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total Games
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Win Rate
-                </th>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8 text-center">Leaderboard</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Rank</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Player</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Total Score</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Games Won</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Win Rate</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Streak</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Avg Score</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Avg Time</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Hints</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {leaderboard.map((entry, index) => (
+              <tr key={entry.email} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                <td className="px-4 py-3 text-sm text-gray-900">{index + 1}</td>
+                <td className="px-4 py-3 text-sm font-medium text-gray-900">{getUsername(entry.email)}</td>
+                <td className="px-4 py-3 text-sm text-gray-900">{entry.totalScore.toLocaleString()}</td>
+                <td className="px-4 py-3 text-sm text-gray-900">{`${entry.gamesWon}/${entry.totalGames}`}</td>
+                <td className="px-4 py-3 text-sm text-gray-900">{entry.winRate}%</td>
+                <td className="px-4 py-3 text-sm text-gray-900">{entry.currentStreak}</td>
+                <td className="px-4 py-3 text-sm text-gray-900">{entry.averageScore}</td>
+                <td className="px-4 py-3 text-sm text-gray-900">{formatTime(entry.averageTime)}</td>
+                <td className="px-4 py-3 text-sm text-gray-900">{entry.totalHints}</td>
               </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {leaderboard.map((entry, index) => (
-                <tr key={entry.email} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {index + 1}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {getUsername(entry.email)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {entry.highestScore}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {entry.gamesWon}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {entry.totalGames}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {entry.totalGames > 0
-                      ? `${((entry.gamesWon / entry.totalGames) * 100).toFixed(1)}%`
-                      : '0%'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

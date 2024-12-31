@@ -39,12 +39,9 @@ export default function SignInForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-newyorker-white">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+    <div className="flex items-center justify-center">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg">
         <div>
-          <h1 className="text-5xl font-playfair italic font-bold text-center tracking-wide mb-8">
-            Idelmer
-          </h1>
           <h2 className="text-center text-2xl font-bold">
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </h2>

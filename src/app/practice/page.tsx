@@ -213,6 +213,17 @@ const PracticePage = () => {
           <>
             <ScoreDisplay score={score} attempts={attempts} />
             
+            <div className="flex justify-center">
+              <button
+                onClick={handleHint}
+                disabled={score <= 0 || hasWon || hasLost || score < 25}
+                className={`bg-newyorker-white border border-black px-4 py-2 text-sm font-playfair italic transition ease-in-out duration-200 rounded ${score > 0 && !hasWon && !hasLost ? 'hover:bg-black hover:text-newyorker-white' : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'}`}
+              >
+                Request a Hint (-25 Points)
+              </button>
+            </div>
+              
+            
             {hasWon ? (
               <VictoryDisplay score={score} attempts={attempts} />
             ) : hasLost ? (
@@ -232,14 +243,6 @@ const PracticePage = () => {
                     />
                   ))}
                 </div>
-
-                <button
-                  onClick={handleHint}
-                  disabled={score < 25}
-                  className="mt-8 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700 disabled:opacity-50"
-                >
-                  Get Hint (-25 points)
-                </button>
               </>
             )}
           </>

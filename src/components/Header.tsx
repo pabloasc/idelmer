@@ -17,7 +17,13 @@ export default function Header() {
           </div>
           
           <nav className="flex items-center space-x-4">
-            {/* Desktop Leaderboard Link */}
+            {/* Desktop Links */}
+            <Link 
+              href="/practice" 
+              className="hidden sm:block text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium"
+            >
+              Practice
+            </Link>
             <Link 
               href="/leaderboard" 
               className="hidden sm:block text-gray-700 hover:text-black px-3 py-2 rounded-md text-sm font-medium"
@@ -44,7 +50,13 @@ export default function Header() {
                   </svg>
                 </button>
                 <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                  {/* Mobile Leaderboard Link */}
+                  {/* Mobile Links */}
+                  <Link
+                    href="/practice"
+                    className="sm:hidden block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Practice
+                  </Link>
                   <Link
                     href="/leaderboard"
                     className="sm:hidden block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

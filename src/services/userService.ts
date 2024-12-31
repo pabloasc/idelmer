@@ -130,13 +130,22 @@ export async function getUserStats(userId: string) {
 
 export async function getLeaderboard() {
   try {
-    const response = await fetch('/api/leaderboard');
+    const response = await fetch('/api/leaderboard', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
     if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error('Failed to fetch leaderboard:', errorData);
       throw new Error('Failed to fetch leaderboard');
     }
-    return await response.json();
+
+    return response.json();
   } catch (error) {
-    console.error('Error fetching leaderboard:', error);
+    console.error('Error in getLeaderboard:', error);
     throw error;
   }
 }

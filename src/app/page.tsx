@@ -347,12 +347,12 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+    <main className="flex flex-col items-center justify-between p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
         {loading ? (
           <div className="text-center">Loading...</div>
         ) : user ? (
-          <div className="min-h-screen bg-newyorker-white">
+          <div>
             <div className="container mx-auto px-4 py-8">
               {/* Game Controls Section */}
               <div className="max-w-2xl mx-auto mb-12 space-y-8">
@@ -361,7 +361,7 @@ export default function Home() {
                 <div className="flex justify-center">
                   <button
                     onClick={handleHint}
-                    disabled={score <= 0 || hasWon || hasLost}
+                    disabled={score <= 0 || hasWon || hasLost || score < 25}
                     className={`
                       border-2 border-black px-6 py-3 text-sm uppercase tracking-wider
                       transition-colors duration-200 rounded-lg shadow-sm
@@ -412,23 +412,22 @@ export default function Home() {
                 )}
               </div>
 
-              {showHintConfirmation && (
-                <HintConfirmationModal
-                  onConfirm={confirmHint}
-                  onCancel={() => setShowHintConfirmation(false)}
-                />
-              )}
+              <HintConfirmationModal
+                isOpen={showHintConfirmation}
+                onConfirm={confirmHint}
+                onCancel={() => setShowHintConfirmation(false)}
+              />
+              
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-8">
-            <h1 className="text-4xl font-bold mb-4">Welcome to Word Game</h1>
             <div className="flex flex-col gap-4 w-full max-w-md">
               <Link
                 href="/practice"
                 className="w-full px-6 py-3 bg-green-500 text-white rounded-lg text-center hover:bg-green-600 transition-colors"
               >
-                Practice Mode (No Login Required)
+                Practice Area
               </Link>
               <div className="text-center text-gray-500">- or -</div>
               <SignInForm />
