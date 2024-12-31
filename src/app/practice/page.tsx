@@ -147,6 +147,10 @@ const PracticePage = () => {
     setShowHintConfirmation(true);
   };
 
+  const handlePlayAgain = () => {
+    window.location.reload();
+  };
+
   const confirmHint = () => {
     if (!currentWord) return;
     
@@ -227,7 +231,9 @@ const PracticePage = () => {
             {hasWon ? (
               <VictoryDisplay score={score} attempts={attempts} />
             ) : hasLost ? (
-              <GameOverDisplay word={currentWord} />
+              <GameOverDisplay word={currentWord} 
+              attempts={attempts}
+              onPlayAgain={handlePlayAgain}/>
             ) : (
               <>
                 <div className="space-y-4">
