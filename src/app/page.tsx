@@ -63,6 +63,7 @@ export default function Home() {
   const [hasLost, setHasLost] = useState<boolean>(false);
   const [showHintConfirmation, setShowHintConfirmation] = useState<boolean>(false);
   const [startTime, setStartTime] = useState<number | null>(null);
+  const [showNextWordModal, setShowNextWordModal] = useState(false);
 
   const fetchDailyWord = async () => {
     if (!user) return;
@@ -71,6 +72,12 @@ export default function Home() {
       if (!response.ok) throw new Error('Failed to fetch daily word');
       
       const data = await response.json();
+      
+      if (data.userScore) {
+        setShowNextWordModal(true);
+        return;
+      }
+      
       if (!data.word) throw new Error('No word received from API');
       
       const newWord = data.word.toUpperCase();
@@ -197,7 +204,7 @@ export default function Home() {
       ]);
       setHasWon(true);
       // Save score and update user stats
-      await Promise.all([
+      await 
         createOrUpdateScore({
           wordId: currentWordId,
           score: score,
@@ -205,8 +212,7 @@ export default function Home() {
           won: true,
           timeTaken: timeTaken,
           hintsUsed: 1
-        }),
-      ]).catch(console.error);
+        }).catch(console.error);
       return;
     }
 
@@ -252,16 +258,14 @@ export default function Home() {
       ]);
       setHasWon(true);
       // Save score and update user stats
-      await Promise.all([
-        createOrUpdateScore({
+      await createOrUpdateScore({
           wordId: currentWordId,
           score: newScore,
           attempts: newAttempts,
           won: true,
           timeTaken: timeTaken,
           hintsUsed: 2
-        })
-      ]).catch(console.error);
+        }).catch(console.error);
       return;
     }
     
@@ -346,80 +350,97 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-between p-4 sm:p-24">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
         {loading ? (
           <div className="text-center">Loading...</div>
         ) : user ? (
           <div>
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold mb-4">Daily word</h1>
-              <p className="text-gray-600">Challenge yourself to guess the daily word</p>
-            </div>
-            <div className="container mx-auto px-4 py-8">
-              {/* Game Controls Section */}
-              <div className="max-w-2xl mx-auto mb-12 space-y-8">
-                <ScoreDisplay attempts={attempts} score={score} />
-                
-                <div className="flex justify-center">
-                  <button
-                    onClick={handleHint}
-                    disabled={score <= 0 || hasWon || hasLost || score < 25}
-                    className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
-                      transition-colors duration-200 ${
-                        score > 0 && !hasWon && !hasLost && score >= 25
-                          ? 'hover:bg-black hover:text-white'
-                          : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                      }`}
-                  >
-                    Request a Hint
-                    <span className="block text-xs mt-1 font-serif text-gray-600">
-                      -25 Points
-                    </span>
-                  </button>
+            {showNextWordModal ? (
+              <div className="text-center mb-8">
+                <h1 className="text-2xl font-bold mb-4">You've already played today's challenge!</h1>
+                <p className="text-gray-600 mb-6">
+                  Come back tomorrow for a new word. In the meantime, you can practice with random words in our practice mode.
+                </p>
+                <Link
+                  href="/practice"
+                  className="w-full px-4 py-2 bg-green-500 text-white rounded-lg text-center hover:bg-green-600 transition-colors"
+                >
+                  Go to Practice Mode
+                </Link>
+              </div>
+            ) : (
+              <div>
+                <div className="text-center mb-8">
+                  <h1 className="text-4xl font-bold mb-4">Daily word</h1>
+                  <p className="text-gray-600">Challenge yourself to guess the daily word</p>
+                </div>
+                <div className="container mx-auto px-4 py-8">
+                  {/* Game Controls Section */}
+                  <div className="max-w-2xl mx-auto mb-12 space-y-8">
+                    <ScoreDisplay attempts={attempts} score={score} />
+                    
+                    <div className="flex justify-center">
+                      <button
+                        onClick={handleHint}
+                        disabled={score <= 0 || hasWon || hasLost || score < 25}
+                        className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                          transition-colors duration-200 ${
+                            score > 0 && !hasWon && !hasLost && score >= 25
+                              ? 'hover:bg-black hover:text-white'
+                              : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                          }`}
+                      >
+                        Request a Hint
+                        <span className="block text-xs mt-1 font-serif text-gray-600">
+                          -25 Points
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Game Board Section */}
+                  <div className="max-w-3xl mx-auto">
+                    <div className="flex flex-col gap-4">
+                      {guesses.map((guessState, index) => (
+                        <WordDisplay
+                          key={index}
+                          word={currentWord}
+                          revealedLetters={guessState.revealedLetters}
+                          letterColors={letterColors}
+                          onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
+                          guess={guessState.guess}
+                          isActive={!hasWon && !hasLost && index === guesses.length - 1}
+                        />
+                      ))}
+                    </div>
+
+                    {hasWon && (
+                      <div className="mt-12">
+                        <VictoryDisplay score={score} attempts={attempts} isPractice={false} />
+                      </div>
+                    )}
+
+                    {hasLost && (
+                      <div className="mt-12">
+                        <GameOverDisplay
+                          word={currentWord}
+                          attempts={attempts}
+                          onPlayAgain={handlePlayAgain}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <HintConfirmationModal
+                    isOpen={showHintConfirmation}
+                    onConfirm={confirmHint}
+                    onCancel={() => setShowHintConfirmation(false)}
+                  />
+                  
                 </div>
               </div>
-              
-              {/* Game Board Section */}
-              <div className="max-w-3xl mx-auto">
-                <div className="flex flex-col gap-4">
-                  {guesses.map((guessState, index) => (
-                    <WordDisplay
-                      key={index}
-                      word={currentWord}
-                      revealedLetters={guessState.revealedLetters}
-                      letterColors={letterColors}
-                      onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
-                      guess={guessState.guess}
-                      isActive={!hasWon && !hasLost && index === guesses.length - 1}
-                    />
-                  ))}
-                </div>
-
-                {hasWon && (
-                  <div className="mt-12">
-                    <VictoryDisplay score={score} attempts={attempts} isPractice={false} />
-                  </div>
-                )}
-
-                {hasLost && (
-                  <div className="mt-12">
-                    <GameOverDisplay
-                      word={currentWord}
-                      attempts={attempts}
-                      onPlayAgain={handlePlayAgain}
-                    />
-                  </div>
-                )}
-              </div>
-
-              <HintConfirmationModal
-                isOpen={showHintConfirmation}
-                onConfirm={confirmHint}
-                onCancel={() => setShowHintConfirmation(false)}
-              />
-              
-            </div>
+            )}
           </div>
         ) : (
           <div className="flex flex-col items-center gap-8">
