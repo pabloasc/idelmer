@@ -65,8 +65,9 @@ export default function Home() {
   const [startTime, setStartTime] = useState<number | null>(null);
 
   const fetchDailyWord = async () => {
+    if (!user) return;
     try {
-      const response = await fetch('/api/daily-word');
+      const response = await fetch(`/api/daily-word?userId=${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch daily word');
       
       const data = await response.json();

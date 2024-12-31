@@ -5,10 +5,13 @@ import { startOfDay, subHours } from 'date-fns';
 // Create a single PrismaClient instance for reuse
 const prisma = new PrismaClient();
 
-export async function GET() {
+export async function GET(request: Request) {
   console.log('Daily word API called at:', new Date().toISOString());
   
   try {
+    const url = new URL(request.url);
+    const userId = url.searchParams.get('userId');
+
     // Get today's date in UTC-3 (America/Sao_Paulo timezone)
     const now = new Date();
     const utcMinus3 = subHours(now, 3);
@@ -48,11 +51,33 @@ export async function GET() {
       );
     }
 
-    console.log('Successfully found word for date:', today.toISOString());
+    // If no userId is provided, return just the word
+    if (!userId) {
+      console.log('Successfully found word for date:', today.toISOString());
+      return NextResponse.json({ 
+        id: dailyWord.id,
+        word: dailyWord.word,
+        date: dailyWord.date 
+      });
+    }
+
+    // Get user's score for this word if it exists
+    const userScore = await prisma.score.findFirst({
+      where: {
+        userId,
+        wordId: dailyWord.id
+      },
+      select: {
+        score: true
+      }
+    });
+
+    console.log('Successfully found word and score for date:', today.toISOString());
     return NextResponse.json({ 
       id: dailyWord.id,
       word: dailyWord.word,
-      date: dailyWord.date 
+      date: dailyWord.date,
+      userScore: userScore || undefined
     });
 
   } catch (error) {
