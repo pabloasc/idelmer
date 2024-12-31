@@ -180,12 +180,10 @@ const PracticePage = () => {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
+    <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24">
+      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
         <div className="mb-8 flex justify-between items-center">
-          <Link href="/" className="text-blue-500 hover:text-blue-700">
-            ← Back to Main
-          </Link>
+          <div></div>
           <div className="flex gap-4">
             <select 
               value={difficulty}
@@ -207,29 +205,39 @@ const PracticePage = () => {
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Practice Mode</h1>
-          <p className="text-gray-600">Practice your word-guessing skills without affecting your stats!</p>
+          <h1 className="text-4xl font-bold mb-4">Practice Area</h1>
+          <p className="text-gray-600">Practice your word-guessing skills</p>
         </div>
 
         {error ? (
           <div className="text-red-500 text-center">{error}</div>
         ) : (
           <>
-            <ScoreDisplay score={score} attempts={attempts} />
-            
-            <div className="flex justify-center">
-              <button
-                onClick={handleHint}
-                disabled={score <= 0 || hasWon || hasLost || score < 25}
-                className={`bg-newyorker-white border border-black px-4 py-2 text-sm font-playfair italic transition ease-in-out duration-200 rounded ${score > 0 && !hasWon && !hasLost ? 'hover:bg-black hover:text-newyorker-white' : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'}`}
-              >
-                Request a Hint (-25 Points)
-              </button>
+            <div className="max-w-2xl mx-auto mb-12 space-y-8">
+              <ScoreDisplay score={score} attempts={attempts} />
+              
+              <div className="flex justify-center">
+                <button
+                  onClick={handleHint}
+                  disabled={score <= 0 || hasWon || hasLost || score < 25}
+                  className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                    transition-colors duration-200 ${
+                      score > 0 && !hasWon && !hasLost && score >= 25
+                        ? 'hover:bg-black hover:text-white'
+                        : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                    }`}
+                >
+                  Request a Hint
+                  <span className="block text-xs mt-1 font-serif text-gray-600">
+                    -25 Points
+                  </span>
+                </button>
+              </div>
             </div>
               
             
             {hasWon ? (
-              <VictoryDisplay score={score} attempts={attempts} />
+              <VictoryDisplay score={score} attempts={attempts} isPractice={true} />
             ) : hasLost ? (
               <GameOverDisplay word={currentWord} 
               attempts={attempts}

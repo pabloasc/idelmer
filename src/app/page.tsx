@@ -347,12 +347,16 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
+    <main className="flex flex-col items-center justify-between p-4 sm:p-24">
+      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
         {loading ? (
           <div className="text-center">Loading...</div>
         ) : user ? (
           <div>
+            <div className="text-center mb-8">
+              <h1 className="text-4xl font-bold mb-4">Daily word</h1>
+              <p className="text-gray-600">Challenge yourself to guess the daily word</p>
+            </div>
             <div className="container mx-auto px-4 py-8">
               {/* Game Controls Section */}
               <div className="max-w-2xl mx-auto mb-12 space-y-8">
@@ -362,14 +366,12 @@ export default function Home() {
                   <button
                     onClick={handleHint}
                     disabled={score <= 0 || hasWon || hasLost || score < 25}
-                    className={`
-                      border-2 border-black px-6 py-3 text-sm uppercase tracking-wider
-                      transition-colors duration-200 rounded-lg shadow-sm
-                      ${score > 0 && !hasWon && !hasLost
-                        ? 'hover:bg-black hover:text-white'
-                        : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                      }
-                    `}
+                    className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                      transition-colors duration-200 ${
+                        score > 0 && !hasWon && !hasLost && score >= 25
+                          ? 'hover:bg-black hover:text-white'
+                          : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                      }`}
                   >
                     Request a Hint
                     <span className="block text-xs mt-1 font-serif text-gray-600">
@@ -397,7 +399,7 @@ export default function Home() {
 
                 {hasWon && (
                   <div className="mt-12">
-                    <VictoryDisplay score={score} attempts={attempts} />
+                    <VictoryDisplay score={score} attempts={attempts} isPractice={false} />
                   </div>
                 )}
 

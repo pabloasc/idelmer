@@ -24,14 +24,6 @@ export default function Footer() {
           <Link href="/how-to-play" className="text-gray-600 hover:text-black">
             How to Play
           </Link>
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-600 hover:text-black"
-          >
-            GitHub
-          </a>
         </div>
 
         {/* Copyright */}
