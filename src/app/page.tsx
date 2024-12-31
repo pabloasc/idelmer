@@ -9,6 +9,7 @@ import HintConfirmationModal from '@/components/HintConfirmationModal';
 import { useAuth } from '@/contexts/AuthContext';
 import SignInForm from '@/components/auth/SignInForm';
 import { createOrUpdateScore } from '@/services/userService';
+import Link from 'next/link';
 
 interface GuessState {
   guess: string;
@@ -345,108 +346,100 @@ export default function Home() {
     window.location.reload();
   };
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-newyorker-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-xl text-center">Loading...</div>
-        </div>
-      </main>
-    );
-  }
-
-  if (!user) {
-    return <SignInForm />;
-  }
-
-  if (error) {
-    return (
-      <main className="min-h-screen bg-newyorker-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-xl text-center text-red-500">{error}</div>
-        </div>
-      </main>
-    );
-  }
-
-  if (!currentWord) {
-    return (
-      <main className="min-h-screen bg-newyorker-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-xl text-center">Loading today's word...</div>
-        </div>
-      </main>
-    );
-  }
-
   return (
-    <main className="min-h-screen bg-newyorker-white">
-      <div className="container mx-auto px-4 py-8">
-        {/* Game Controls Section */}
-        <div className="max-w-2xl mx-auto mb-12 space-y-8">
-          <ScoreDisplay attempts={attempts} score={score} />
-          
-          <div className="flex justify-center">
-            <button
-              onClick={handleHint}
-              disabled={score <= 0 || hasWon || hasLost}
-              className={`
-                border-2 border-black px-6 py-3 text-sm uppercase tracking-wider
-                transition-colors duration-200 rounded-lg shadow-sm
-                ${score > 0 && !hasWon && !hasLost
-                  ? 'hover:bg-black hover:text-white'
-                  : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                }
-              `}
-            >
-              Request a Hint
-              <span className="block text-xs mt-1 font-serif text-gray-600">
-                -25 Points
-              </span>
-            </button>
-          </div>
-        </div>
-        
-        {/* Game Board Section */}
-        <div className="max-w-3xl mx-auto">
-          <div className="flex flex-col gap-4">
-            {guesses.map((guessState, index) => (
-              <WordDisplay
-                key={index}
-                word={currentWord}
-                revealedLetters={guessState.revealedLetters}
-                letterColors={letterColors}
-                onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
-                guess={guessState.guess}
-                isActive={!hasWon && !hasLost && index === guesses.length - 1}
-              />
-            ))}
-          </div>
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
+        {loading ? (
+          <div className="text-center">Loading...</div>
+        ) : user ? (
+          <div className="min-h-screen bg-newyorker-white">
+            <div className="container mx-auto px-4 py-8">
+              {/* Game Controls Section */}
+              <div className="max-w-2xl mx-auto mb-12 space-y-8">
+                <ScoreDisplay attempts={attempts} score={score} />
+                
+                <div className="flex justify-center">
+                  <button
+                    onClick={handleHint}
+                    disabled={score <= 0 || hasWon || hasLost}
+                    className={`
+                      border-2 border-black px-6 py-3 text-sm uppercase tracking-wider
+                      transition-colors duration-200 rounded-lg shadow-sm
+                      ${score > 0 && !hasWon && !hasLost
+                        ? 'hover:bg-black hover:text-white'
+                        : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                      }
+                    `}
+                  >
+                    Request a Hint
+                    <span className="block text-xs mt-1 font-serif text-gray-600">
+                      -25 Points
+                    </span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Game Board Section */}
+              <div className="max-w-3xl mx-auto">
+                <div className="flex flex-col gap-4">
+                  {guesses.map((guessState, index) => (
+                    <WordDisplay
+                      key={index}
+                      word={currentWord}
+                      revealedLetters={guessState.revealedLetters}
+                      letterColors={letterColors}
+                      onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
+                      guess={guessState.guess}
+                      isActive={!hasWon && !hasLost && index === guesses.length - 1}
+                    />
+                  ))}
+                </div>
 
-          {hasWon && (
-            <div className="mt-12">
-              <VictoryDisplay score={score} attempts={attempts} />
+                {hasWon && (
+                  <div className="mt-12">
+                    <VictoryDisplay score={score} attempts={attempts} />
+                  </div>
+                )}
+
+                {hasLost && (
+                  <div className="mt-12">
+                    <GameOverDisplay
+                      word={currentWord}
+                      attempts={attempts}
+                      onPlayAgain={handlePlayAgain}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {showHintConfirmation && (
+                <HintConfirmationModal
+                  onConfirm={confirmHint}
+                  onCancel={() => setShowHintConfirmation(false)}
+                />
+              )}
             </div>
-          )}
-
-          {hasLost && (
-            <div className="mt-12">
-              <GameOverDisplay
-                word={currentWord}
-                attempts={attempts}
-                onPlayAgain={handlePlayAgain}
-              />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-8">
+            <h1 className="text-4xl font-bold mb-4">Welcome to Word Game</h1>
+            <div className="flex flex-col gap-4 w-full max-w-md">
+              <Link
+                href="/practice"
+                className="w-full px-6 py-3 bg-green-500 text-white rounded-lg text-center hover:bg-green-600 transition-colors"
+              >
+                Practice Mode (No Login Required)
+              </Link>
+              <div className="text-center text-gray-500">- or -</div>
+              <SignInForm />
             </div>
-          )}
-        </div>
-
-        {showHintConfirmation && (
-          <HintConfirmationModal
-            onConfirm={confirmHint}
-            onCancel={() => setShowHintConfirmation(false)}
-          />
+          </div>
         )}
       </div>
+
+      {error && (
+        <div className="text-center text-red-500">{error}</div>
+      )}
     </main>
   );
 }

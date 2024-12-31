@@ -4,11 +4,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 interface HintConfirmationModalProps {
+  isOpen: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-const HintConfirmationModal = ({ onConfirm, onCancel }: HintConfirmationModalProps) => {
+const HintConfirmationModal = ({ isOpen, onConfirm, onCancel }: HintConfirmationModalProps) => {
+  if (!isOpen) return null;
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
