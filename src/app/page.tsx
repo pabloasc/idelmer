@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import SignInForm from '@/components/auth/SignInForm';
 import { createOrUpdateScore } from '@/services/userService';
 import Link from 'next/link';
+import Head from 'next/head';
 
 interface GuessState {
   guess: string;
@@ -350,117 +351,135 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
-        {loading ? (
-          <div className="text-center">Loading...</div>
-        ) : user ? (
-          <div>
-            {showNextWordModal ? (
-              <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold mb-4">You've already played today's challenge!</h1>
-                <p className="text-gray-600 mb-6">
-                  Come back tomorrow for a new word. In the meantime, you can practice with random words in our practice mode.
-                </p>
-                <Link
-                  href="/practice"
-                  className="w-full px-4 py-2 bg-green-500 text-white rounded-lg text-center hover:bg-green-600 transition-colors"
-                >
-                  Go to Practice Mode
-                </Link>
-              </div>
-            ) : (
-              <div>
+    <>
+      <Head>
+        <title>Idelmer - Stay Curious. Stay Clever. Play Idelmer.</title>
+        <meta name="description" content="Join our daily challenge word puzzle to test your skills and improve your vocabulary. Play now and enjoy a new word puzzle every day!" />
+        <meta name="keywords" content="word puzzle, daily challenge, vocabulary game, word game, puzzle game" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="manifest" href="/site.webmanifest" />
+      </Head>
+      <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 font-forum">
+        <div className="z-10 w-full max-w-5xl items-center justify-between font-forum text-sm">
+          {loading ? (
+            <div className="text-center">Loading...</div>
+          ) : user ? (
+            <div>
+              {showNextWordModal ? (
                 <div className="text-center mb-8">
-                  <h1 className="text-4xl font-bold mb-4">Daily word</h1>
-                  <p className="text-gray-600">Challenge yourself to guess the daily word</p>
+                  <h1 className="text-2xl font-bold mb-4">You've already played today's challenge!</h1>
+                  <p className="text-gray-600 mb-6">
+                    Come back tomorrow for a new word. In the meantime, you can practice with random words in our practice mode.
+                  </p>
+                  <Link
+                    href="/practice"
+                    className="w-full px-4 py-2 bg-green-500 text-white rounded-lg text-center hover:bg-green-600 transition-colors font-forum"
+                  >
+                    Go to Practice Area
+                  </Link>
                 </div>
-                <div className="container mx-auto px-4 py-8">
-                  {/* Game Controls Section */}
-                  <div className="max-w-2xl mx-auto mb-12 space-y-8">
-                    <ScoreDisplay attempts={attempts} score={score} />
+              ) : (
+                <div>
+                  <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold mb-4">Daily word</h1>
+                    <p className="text-gray-600">Challenge yourself to guess the daily word</p>
+                  </div>
+                  <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
+                    {/* Game Controls Section */}
+                    <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
+                      <ScoreDisplay attempts={attempts} score={score} />
+                      
+                      <div className="flex justify-center font-forum">
+                        <button
+                          onClick={handleHint}
+                          disabled={score <= 0 || hasWon || hasLost || score < 25}
+                          className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                            transition-colors duration-200 ${
+                              score > 0 && !hasWon && !hasLost && score >= 25
+                                ? 'hover:bg-black hover:text-white'
+                                : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                            } font-forum`}
+                        >
+                          Request a Hint
+                          <span className="block text-xs mt-1 font-serif text-gray-600 font-forum">
+                            -25 Points
+                          </span>
+                        </button>
+                      </div>
+                    </div>
                     
-                    <div className="flex justify-center">
-                      <button
-                        onClick={handleHint}
-                        disabled={score <= 0 || hasWon || hasLost || score < 25}
-                        className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
-                          transition-colors duration-200 ${
-                            score > 0 && !hasWon && !hasLost && score >= 25
-                              ? 'hover:bg-black hover:text-white'
-                              : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                          }`}
-                      >
-                        Request a Hint
-                        <span className="block text-xs mt-1 font-serif text-gray-600">
-                          -25 Points
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                  
-                  {/* Game Board Section */}
-                  <div className="max-w-3xl mx-auto">
-                    <div className="flex flex-col gap-4">
-                      {guesses.map((guessState, index) => (
-                        <WordDisplay
-                          key={index}
-                          word={currentWord}
-                          revealedLetters={guessState.revealedLetters}
-                          letterColors={letterColors}
-                          onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
-                          guess={guessState.guess}
-                          isActive={!hasWon && !hasLost && index === guesses.length - 1}
-                        />
-                      ))}
+                    {/* Game Board Section */}
+                    <div className="max-w-3xl mx-auto">
+                      <div className="flex flex-col gap-4">
+                        {guesses.map((guessState, index) => (
+                          <WordDisplay
+                            key={index}
+                            word={currentWord}
+                            revealedLetters={guessState.revealedLetters}
+                            letterColors={letterColors}
+                            onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
+                            guess={guessState.guess}
+                            isActive={!hasWon && !hasLost && index === guesses.length - 1}
+                          />
+                        ))}
+                      </div>
+
+                      {hasWon && (
+                        <div className="mt-12">
+                          <VictoryDisplay score={score} attempts={attempts} isPractice={false} />
+                        </div>
+                      )}
+
+                      {hasLost && (
+                        <div className="mt-12">
+                          <GameOverDisplay
+                            word={currentWord}
+                            attempts={attempts}
+                            onPlayAgain={handlePlayAgain}
+                          />
+                        </div>
+                      )}
                     </div>
 
-                    {hasWon && (
-                      <div className="mt-12">
-                        <VictoryDisplay score={score} attempts={attempts} isPractice={false} />
-                      </div>
-                    )}
-
-                    {hasLost && (
-                      <div className="mt-12">
-                        <GameOverDisplay
-                          word={currentWord}
-                          attempts={attempts}
-                          onPlayAgain={handlePlayAgain}
-                        />
-                      </div>
-                    )}
+                    <HintConfirmationModal
+                      isOpen={showHintConfirmation}
+                      onConfirm={confirmHint}
+                      onCancel={() => setShowHintConfirmation(false)}
+                    />
+                    
                   </div>
-
-                  <HintConfirmationModal
-                    isOpen={showHintConfirmation}
-                    onConfirm={confirmHint}
-                    onCancel={() => setShowHintConfirmation(false)}
-                  />
-                  
                 </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-8">
-            <div className="flex flex-col gap-4 w-full max-w-md">
-              <Link
-                href="/practice"
-                className="w-full px-6 py-3 bg-green-500 text-white rounded-lg text-center hover:bg-green-600 transition-colors"
-              >
-                Practice Area
-              </Link>
-              <div className="text-center text-gray-500">- or -</div>
-              <SignInForm />
+              )}
             </div>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="flex flex-col items-center gap-8">
+              <div className="flex flex-col gap-4 w-full max-w-md">
+              <Link
+                  href="/practice"
+              className={`w-full px-6 py-3 border-2 border-black text-sm uppercase text-center
+                transition-colors duration-200 ${
+                  true
+                    ? 'hover:bg-black hover:text-white'
+                    : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                } font-forum`}
+            >
+                  Practice Area
+                </Link>
+                <div className="text-center text-gray-500">- or -</div>
+                <SignInForm />
+              </div>
+            </div>
+          )}
+        </div>
 
-      {error && (
-        <div className="text-center text-red-500">{error}</div>
-      )}
-    </main>
+        {error && (
+          <div className="text-center text-red-500">{error}</div>
+        )}
+      </main>
+    </>
   );
 }

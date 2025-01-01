@@ -180,15 +180,15 @@ const PracticePage = () => {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
-        <div className="mb-8 flex justify-between items-center">
+    <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24 font-forum">
+      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm font-forum">
+        <div className="mb-8 flex justify-between items-center font-forum">
           <div></div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 font-forum">
             <select 
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value as any)}
-              className="px-4 py-2 rounded border border-gray-300"
+              className="px-4 py-2 rounded border border-gray-300 font-forum"
             >
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
@@ -197,26 +197,31 @@ const PracticePage = () => {
             </select>
             <button
               onClick={startNewGame}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+              className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                transition-colors duration-200 ${
+                  true
+                    ? 'hover:bg-black hover:text-white'
+                    : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                } font-forum`}
             >
               New Game
             </button>
           </div>
         </div>
 
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">Practice Area</h1>
-          <p className="text-gray-600">Practice your word-guessing skills</p>
+        <div className="text-center mb-8 font-forum">
+          <h1 className="text-4xl font-bold mb-4 font-forum">Practice Area</h1>
+          <p className="text-gray-600 font-forum">Practice your word-guessing skills</p>
         </div>
 
         {error ? (
-          <div className="text-red-500 text-center">{error}</div>
+          <div className="text-red-500 text-center font-forum">{error}</div>
         ) : (
           <>
-            <div className="max-w-2xl mx-auto mb-12 space-y-8">
+            <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
               <ScoreDisplay score={score} attempts={attempts} />
               
-              <div className="flex justify-center">
+              <div className="flex justify-center font-forum">
                 <button
                   onClick={handleHint}
                   disabled={score <= 0 || hasWon || hasLost || score < 25}
@@ -225,10 +230,10 @@ const PracticePage = () => {
                       score > 0 && !hasWon && !hasLost && score >= 25
                         ? 'hover:bg-black hover:text-white'
                         : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                    }`}
+                    } font-forum`}
                 >
                   Request a Hint
-                  <span className="block text-xs mt-1 font-serif text-gray-600">
+                  <span className="block text-xs mt-1 font-serif text-gray-600 font-forum">
                     -25 Points
                   </span>
                 </button>
@@ -244,7 +249,7 @@ const PracticePage = () => {
               onPlayAgain={handlePlayAgain}/>
             ) : (
               <>
-                <div className="space-y-4">
+                <div className="space-y-4 font-forum">
                   {guesses.map((guessState, index) => (
                     <WordDisplay
                       key={index}

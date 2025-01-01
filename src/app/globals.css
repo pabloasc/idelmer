@@ -11,3 +11,15 @@ body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
 }
+
+@font-face {
+  font-family: 'Forum';
+  src: url('/Forum-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Add global styles for the Forum font */
+.font-forum {
+  font-family: 'Forum', cursive;
+}

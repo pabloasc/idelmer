@@ -51,58 +51,58 @@ export default function LeaderboardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-xl">Loading...</div>
+      <div className="flex items-center justify-center p-8 font-forum">
+        <div className="text-xl font-forum">Loading...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-xl text-red-500">{error}</div>
+      <div className="flex items-center justify-center p-8 font-forum">
+        <div className="text-xl text-red-500 font-forum">{error}</div>
       </div>
     );
   }
 
   if (!leaderboard || leaderboard.length === 0) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-xl text-gray-500">No leaderboard data available yet</div>
+      <div className="flex items-center justify-center p-8 font-forum">
+        <div className="text-xl text-gray-500 font-forum">No leaderboard data available yet</div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Leaderboard</h1>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-gray-100">
+    <div className="container mx-auto px-4 py-8 font-forum">
+      <h1 className="text-3xl font-bold mb-8 text-center font-forum">Leaderboard</h1>
+      <div className="overflow-x-auto font-forum">
+        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden font-forum">
+          <thead className="bg-gray-100 font-forum">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Rank</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Player</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Total Score</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Games Won</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Win Rate</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Streak</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Avg Score</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Avg Time</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600">Hints</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Rank</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Player</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Total Score</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Games Won</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Win Rate</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Streak</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Avg Score</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Avg Time</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Hints</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 font-forum">
             {leaderboard.map((entry, index) => (
               <tr key={entry.email} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                <td className="px-4 py-3 text-sm text-gray-900">{index + 1}</td>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">{getUsername(entry.email)}</td>
-                <td className="px-4 py-3 text-sm text-gray-900">{entry.totalScore.toLocaleString()}</td>
-                <td className="px-4 py-3 text-sm text-gray-900">{`${entry.gamesWon}/${entry.totalGames}`}</td>
-                <td className="px-4 py-3 text-sm text-gray-900">{entry.winRate}%</td>
-                <td className="px-4 py-3 text-sm text-gray-900">{entry.currentStreak}</td>
-                <td className="px-4 py-3 text-sm text-gray-900">{entry.averageScore}</td>
-                <td className="px-4 py-3 text-sm text-gray-900">{formatTime(entry.averageTime)}</td>
-                <td className="px-4 py-3 text-sm text-gray-900">{entry.totalHints}</td>
+                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{index + 1}</td>
+                <td className="px-4 py-3 text-sm font-medium text-gray-900 font-forum">{getUsername(entry.email)}</td>
+                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.totalScore.toLocaleString()}</td>
+                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{`${entry.gamesWon}/${entry.totalGames}`}</td>
+                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.winRate}%</td>
+                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.currentStreak}</td>
+                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.averageScore}</td>
+                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{formatTime(entry.averageTime)}</td>
+                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.totalHints}</td>
               </tr>
             ))}
           </tbody>

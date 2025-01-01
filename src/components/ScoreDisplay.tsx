@@ -9,8 +9,8 @@ interface ScoreDisplayProps {
 
 const ScoreDisplay = ({ attempts, score }: ScoreDisplayProps) => {
   return (
-    <div className="flex flex-col items-center gap-2 font-serif">
-      <div className="text-sm uppercase tracking-wide text-gray-600">Game Statistics</div>
+    <div className="flex flex-col items-center gap-2 font-forum">
+      <div className="text-sm uppercase tracking-wide text-gray-600">Current Score</div>
       <div className="flex gap-8 mt-1">
         <div className="text-center">
           <div className="text-3xl font-bold">{attempts}</div>

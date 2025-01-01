@@ -6,8 +6,6 @@ import { startOfDay, subHours } from 'date-fns';
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
-  console.log('Daily word API called at:', new Date().toISOString());
-  
   try {
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');

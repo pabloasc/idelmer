@@ -40,10 +40,10 @@ export default function SignInForm() {
 
   return (
     <div className="flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white">
         <div>
           <h2 className="text-center text-2xl font-bold">
-            {isSignUp ? 'Create your account' : 'Sign in to your account'}
+            {isSignUp ? 'Create your account to play the daily challenge' : 'Sign in to your account to play the daily challenge'}
           </h2>
         </div>
 
@@ -63,7 +63,7 @@ export default function SignInForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 
-                  placeholder-gray-500 text-gray-900 rounded-md focus:outline-none
+                  placeholder-gray-500 text-gray-900 focus:outline-none
                   focus:ring-black focus:border-black focus:z-10 sm:text-sm"
                 placeholder="Email address"
               />
@@ -78,7 +78,7 @@ export default function SignInForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 
-                  placeholder-gray-500 text-gray-900 rounded-md focus:outline-none
+                  placeholder-gray-500 text-gray-900 focus:outline-none
                   focus:ring-black focus:border-black focus:z-10 sm:text-sm"
                 placeholder="Password"
               />
@@ -89,7 +89,7 @@ export default function SignInForm() {
             <button
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border-2 
-                border-black text-sm font-medium rounded-md text-black bg-white 
+                border-black text-sm font-medium text-black bg-white 
                 hover:bg-black hover:text-white focus:outline-none focus:ring-2 
                 focus:ring-offset-2 focus:ring-black transition-colors duration-200"
             >
@@ -121,7 +121,7 @@ export default function SignInForm() {
               type="button"
               onClick={() => signInWithGoogle()}
               className="flex justify-center items-center px-4 py-2 border-2 border-gray-300 
-                rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white 
+                shadow-sm text-sm font-medium text-gray-700 bg-white 
                 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 
                 focus:ring-black transition-colors duration-200"
             >
@@ -150,7 +150,7 @@ export default function SignInForm() {
               type="button"
               onClick={() => signInWithFacebook()}
               className="flex justify-center items-center px-4 py-2 border-2 border-gray-300 
-                rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white 
+                shadow-sm text-sm font-medium text-gray-700 bg-white 
                 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 
                 focus:ring-black transition-colors duration-200"
             >

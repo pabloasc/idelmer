@@ -78,7 +78,7 @@ const VictoryDisplay = ({ score, attempts, isPractice = false }: VictoryDisplayP
               className="block w-full border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
                 transition-colors duration-200 hover:bg-black hover:text-white mb-4"
             >
-              Try Practice Mode
+              Try Practice Area
             </Link>
           )}
           <button 

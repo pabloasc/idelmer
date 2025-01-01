@@ -62,7 +62,7 @@ export default function HowToPlay() {
       >
         {/* Header */}
         <motion.div variants={itemVariants} className="text-center mb-12">
-          <h1 className="text-4xl font-playfair italic font-bold mb-4">How to Play</h1>
+          <h1 className="text-4xl font-forum italic font-bold mb-4">How to Play</h1>
           <p className="text-gray-600 font-serif">
             Master the art of word discovery with our elegant puzzle game
           </p>
@@ -72,7 +72,7 @@ export default function HowToPlay() {
         <motion.div variants={itemVariants} className="space-y-12">
           {/* Objective */}
           <div className="prose prose-lg mx-auto">
-            <h2 className="font-playfair text-2xl mb-4">Objective</h2>
+            <h2 className="font-forum text-2xl mb-4">Objective</h2>
             <p className="font-serif text-gray-700">
               Guess the daily word in as few attempts as possible. Each day brings a new word challenge.
             </p>
@@ -80,7 +80,7 @@ export default function HowToPlay() {
 
           {/* Rules */}
           <div className="prose prose-lg mx-auto">
-            <h2 className="font-playfair text-2xl mb-4">Rules</h2>
+            <h2 className="font-forum text-2xl mb-4">Rules</h2>
             <ul className="font-serif text-gray-700 space-y-4">
               <li>You have unlimited attempts to guess the word</li>
               <li>You can use hints, but they will cost you points</li>
@@ -95,7 +95,7 @@ export default function HowToPlay() {
 
           {/* Scoring */}
           <div className="prose prose-lg mx-auto">
-            <h2 className="font-playfair text-2xl mb-4">Scoring</h2>
+            <h2 className="font-forum text-2xl mb-4">Scoring</h2>
             <ul className="font-serif text-gray-700 space-y-4">
               <li>Start with 100 points</li>
               <li>Lose 20 points for each incorrect guess</li>
@@ -112,8 +112,9 @@ export default function HowToPlay() {
 
           {/* Tips */}
           <div className="prose prose-lg mx-auto">
-            <h2 className="font-playfair text-2xl mb-4">Tips for Success</h2>
+            <h2 className="font-forum text-2xl mb-4">Tips for Success</h2>
             <ul className="font-serif text-gray-700 space-y-4">
+              <li>The letters have unique patterns</li>
               <li>Use hints strategically when stuck</li>
               <li>Track your progress on the leaderboard</li>
             </ul>
