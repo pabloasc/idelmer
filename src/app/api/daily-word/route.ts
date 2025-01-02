@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { startOfDay, subHours } from 'date-fns';
+import { startOfDay } from 'date-fns';
 
 // Create a single PrismaClient instance for reuse
 const prisma = new PrismaClient();
@@ -12,15 +12,14 @@ export async function GET(request: Request) {
 
     // Get today's date in UTC-3 (America/Sao_Paulo timezone)
     const now = new Date();
-    const utcMinus3 = subHours(now, 3);
-    const today = startOfDay(utcMinus3);
+    const today = startOfDay(now);
     console.log('Searching for word on date:', today.toISOString());
 
     // Find today's word with explicit date comparison
     const dailyWord = await prisma.dailyWord.findFirst({
       where: {
         date: {
-          equals: today
+          equals: today.toISOString()
         }
       },
       select: {
@@ -35,7 +34,7 @@ export async function GET(request: Request) {
     if (!dailyWord) {
       console.error('No word found for date:', today.toISOString());
       return NextResponse.json(
-        { error: 'No word found for today' },
+        { error: `No word found for today ${today}` },
         { status: 404 }
       );
     }
