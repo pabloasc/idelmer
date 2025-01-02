@@ -1,3 +1,5 @@
+// export const dynamic = "force-dynamic";
+
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
@@ -9,6 +11,10 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');
     const today = new Date().toISOString().split('T')[0];
+
+    // Set headers to avoid caching
+    const headers = new Headers();
+    headers.append('Cache-Control', 'no-store');
 
     // Find today's word with explicit date comparison
     const dailyWord = await prisma.dailyWord.findFirst({
@@ -30,7 +36,7 @@ export async function GET(request: Request) {
       console.error('No word found for date:', today);
       return NextResponse.json(
         { error: `No word found for today ${today}` },
-        { status: 404 }
+        { status: 404, headers }
       );
     }
 
@@ -39,18 +45,17 @@ export async function GET(request: Request) {
       console.error('Invalid word data:', dailyWord);
       return NextResponse.json(
         { error: 'Invalid word data' },
-        { status: 500 }
+        { status: 500, headers }
       );
     }
 
     // If no userId is provided, return just the word
     if (!userId) {
       console.log('Successfully found word for date:', today);
-      return NextResponse.json({ 
-        id: dailyWord.id,
-        word: dailyWord.word,
-        date: dailyWord.date 
-      });
+      return NextResponse.json(
+        { id: dailyWord.id, word: dailyWord.word, date: dailyWord.date },
+        { headers }
+      );
     }
 
     // Get user's score for this word if it exists
@@ -65,13 +70,10 @@ export async function GET(request: Request) {
     });
 
     console.log('Successfully found word and score for date:', today);
-    return NextResponse.json({ 
-      id: dailyWord.id,
-      word: dailyWord.word,
-      date: dailyWord.date,
-      userScore: userScore || undefined
-    });
-
+    return NextResponse.json(
+      { id: dailyWord.id, word: dailyWord.word, date: dailyWord.date, userScore: userScore || undefined },
+      { headers }
+    );
   } catch (error) {
     // Log detailed error information
     console.error('Error in daily word API:', {
