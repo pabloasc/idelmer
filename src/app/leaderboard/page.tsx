@@ -85,10 +85,8 @@ export default function LeaderboardPage() {
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Total Score</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Games Won</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Win Rate</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Streak</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Avg Score</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Avg Time</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-600 font-forum">Hints</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 font-forum">
@@ -99,10 +97,8 @@ export default function LeaderboardPage() {
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.totalScore.toLocaleString()}</td>
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{`${entry.gamesWon}/${entry.totalGames}`}</td>
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.winRate}%</td>
-                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.currentStreak}</td>
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.averageScore}</td>
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{formatTime(entry.averageTime)}</td>
-                <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.totalHints}</td>
               </tr>
             ))}
           </tbody>
