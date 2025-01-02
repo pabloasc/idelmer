@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { addDays, startOfDay, subHours } from 'date-fns';
+import { addDays, startOfDay } from 'date-fns';
 
 const prisma = new PrismaClient();
 
@@ -18,10 +18,8 @@ async function main() {
   // Clear existing data
   await prisma.dailyWord.deleteMany();
 
-  // Get today's start date in UTC-3
-  const now = new Date();
-  const utcMinus3 = subHours(now, 3);
-  const today = startOfDay(utcMinus3);
+  // Get today's start date
+  const today = startOfDay(new Date());
 
   // Create daily words for the next 30 days
   const dailyWords = words.map((word, index) => ({

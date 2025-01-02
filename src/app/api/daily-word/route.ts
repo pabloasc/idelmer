@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { startOfDay } from 'date-fns';
 
 // Create a single PrismaClient instance for reuse
 const prisma = new PrismaClient();
@@ -9,17 +8,13 @@ export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
     const userId = url.searchParams.get('userId');
-
-    // Get today's date in UTC-3 (America/Sao_Paulo timezone)
-    const now = new Date();
-    const today = startOfDay(now);
-    console.log('Searching for word on date:', today.toISOString());
+    const today = new Date().toISOString().split('T')[0];
 
     // Find today's word with explicit date comparison
     const dailyWord = await prisma.dailyWord.findFirst({
       where: {
         date: {
-          equals: today.toISOString()
+          equals: new Date(today)
         }
       },
       select: {
@@ -32,7 +27,7 @@ export async function GET(request: Request) {
     console.log('Database query result:', dailyWord);
 
     if (!dailyWord) {
-      console.error('No word found for date:', today.toISOString());
+      console.error('No word found for date:', today);
       return NextResponse.json(
         { error: `No word found for today ${today}` },
         { status: 404 }
@@ -50,7 +45,7 @@ export async function GET(request: Request) {
 
     // If no userId is provided, return just the word
     if (!userId) {
-      console.log('Successfully found word for date:', today.toISOString());
+      console.log('Successfully found word for date:', today);
       return NextResponse.json({ 
         id: dailyWord.id,
         word: dailyWord.word,
@@ -69,7 +64,7 @@ export async function GET(request: Request) {
       }
     });
 
-    console.log('Successfully found word and score for date:', today.toISOString());
+    console.log('Successfully found word and score for date:', today);
     return NextResponse.json({ 
       id: dailyWord.id,
       word: dailyWord.word,
