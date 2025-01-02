@@ -16,7 +16,6 @@ export default function Header() {
             <Link href="/" className="text-3xl sm:text-4xl font-extrabold tracking-wide text-black">
               IDELMER
             </Link>
-            <p className="italic text-xs sm:text-sm text-gray-800">Stay Curious. Stay Clever. Play Idelmer.</p>
           </div>
           <nav className="flex items-center space-x-6">
             <div className="sm:hidden">
