@@ -12,8 +12,8 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'Word Game',
-  description: 'A fun word guessing game with visual patterns',
+  title: 'Idelmer',
+  description: 'Stay Curious. Stay Clever. Play Idelmer.',
 }
 
 export default function RootLayout({
