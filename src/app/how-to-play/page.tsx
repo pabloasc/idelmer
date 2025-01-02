@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -19,36 +20,6 @@ const itemVariants = {
     opacity: 1,
     y: 0
   }
-};
-
-const ExampleGuess = ({ guess, word, isCorrect }: { guess: string; word: string; isCorrect?: boolean }) => {
-  return (
-    <div className="flex space-x-2 justify-center font-mono text-lg">
-      {guess.split('').map((letter, index) => {
-        let bgColor = 'bg-gray-200';
-        if (word[index] === letter) {
-          bgColor = 'bg-green-500 text-white';
-        } else if (word.includes(letter)) {
-          bgColor = 'bg-yellow-500 text-white';
-        }
-        return (
-          <div
-            key={index}
-            className={`w-10 h-10 ${bgColor} flex items-center justify-center rounded`}
-          >
-            {letter}
-          </div>
-        );
-      })}
-      {isCorrect && (
-        <div className="ml-4 text-green-500 flex items-center">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-      )}
-    </div>
-  );
 };
 
 export default function HowToPlay() {
@@ -126,13 +97,13 @@ export default function HowToPlay() {
           variants={itemVariants}
           className="text-center mt-12"
         >
-          <a
+          <Link
             href="/"
             className="inline-block border-2 border-black px-8 py-3 text-sm uppercase tracking-wider
               transition-colors duration-200 hover:bg-black hover:text-white font-serif"
           >
             Start Playing
-          </a>
+          </Link>
         </motion.div>
       </motion.div>
     </div>

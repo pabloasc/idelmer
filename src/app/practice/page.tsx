@@ -7,7 +7,6 @@ import VictoryDisplay from '@/components/VictoryDisplay';
 import GameOverDisplay from '@/components/GameOverDisplay';
 import HintConfirmationModal from '@/components/HintConfirmationModal';
 import { getRandomWord } from '@/data/wordBank';
-import Link from 'next/link';
 
 interface GuessState {
   guess: string;
@@ -18,7 +17,6 @@ const PracticePage = () => {
   const [currentWord, setCurrentWord] = useState<string>('');
   const [guesses, setGuesses] = useState<GuessState[]>([]);
   const [letterColors, setLetterColors] = useState<{ [key: string]: string }>({});
-  const [revealedLetters, setRevealedLetters] = useState<Set<string>>(new Set());
   const [attempts, setAttempts] = useState<number>(1);
   const [score, setScore] = useState<number>(100);
   const [error, setError] = useState<string>('');
@@ -67,15 +65,15 @@ const PracticePage = () => {
       letterCounts[letter] = (letterCounts[letter] || 0) + 1;
     });
     
-    const repeatedLetter = Object.entries(letterCounts)
-      .find(([letter, count]) => Number(count) > 1)?.[0];
+    //eslint-disable-next-line
+    const repeatedLetter = Object.entries(letterCounts).find(([letter, count]) => Number(count) > 1)?.[0];
       
     setGuesses([{
       guess: '',
       revealedLetters: new Set(repeatedLetter ? [repeatedLetter] : [])
     }]);
   };
-
+  
   useEffect(() => {
     startNewGame();
   }, [difficulty]);
@@ -187,7 +185,7 @@ const PracticePage = () => {
           <div className="flex gap-4 font-forum">
             <select 
               value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value as any)}
+              onChange={(e) => setDifficulty(e.target.value as 'easy' | 'medium' | 'hard' | 'expert')}
               className="px-4 py-2 rounded border border-gray-300 font-forum"
             >
               <option value="easy">Easy</option>
@@ -198,11 +196,7 @@ const PracticePage = () => {
             <button
               onClick={startNewGame}
               className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
-                transition-colors duration-200 ${
-                  true
-                    ? 'hover:bg-black hover:text-white'
-                    : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                } font-forum`}
+                transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
             >
               New Game
             </button>
@@ -242,7 +236,7 @@ const PracticePage = () => {
               
             
             {hasWon ? (
-              <VictoryDisplay score={score} attempts={attempts} isPractice={true} />
+              <VictoryDisplay score={score} attempts={attempts} isPractice={true} timeTaken={0}/>
             ) : hasLost ? (
               <GameOverDisplay word={currentWord} 
               attempts={attempts}

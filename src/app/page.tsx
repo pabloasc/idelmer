@@ -17,15 +17,6 @@ interface GuessState {
   revealedLetters: Set<string>;
 }
 
-interface ScoreData {
-  wordId: number;
-  score: number;
-  attempts: number;
-  won: boolean;
-  timeTaken: number;
-  hintsUsed: number;
-}
-
 const generateColors = (word: string): { [key: string]: string } => {
   const colors: { [key: string]: string } = {};
   const uniqueLetters = Array.from(new Set(word.toLowerCase().split('')));
@@ -51,12 +42,11 @@ const generateColors = (word: string): { [key: string]: string } => {
 };
 
 export default function Home() {
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
   const [currentWord, setCurrentWord] = useState<string>('');
   const [currentWordId, setCurrentWordId] = useState<number | null>(null);
   const [guesses, setGuesses] = useState<GuessState[]>([]);
   const [letterColors, setLetterColors] = useState<{ [key: string]: string }>({});
-  const [revealedLetters, setRevealedLetters] = useState<Set<string>>(new Set());
   const [attempts, setAttempts] = useState<number>(1);
   const [score, setScore] = useState<number>(100);
   const [error, setError] = useState<string>('');
@@ -94,7 +84,6 @@ export default function Home() {
           if (scoreData) {
             // Initialize sets for revealed letters
             const revealedLetters = new Set<string>();
-            const allLetters = new Set<string>();
 
             // Add all revealed letters
             newWord.toLowerCase().split('').forEach((letter: string) => {
@@ -103,35 +92,19 @@ export default function Home() {
               }
             });
 
-            // Add all letters if game is won
-            if (scoreData.won) {
-              newWord.toLowerCase().split('').forEach((letter: string) => {
-                allLetters.add(letter);
-              });
-            }
-
             setScore(scoreData.score);
             setAttempts(scoreData.attempts);
             setHasWon(scoreData.won);
             setHasLost(scoreData.lost);
 
             // Check if all letters are revealed
-            const allLettersRevealed = Array.from(allLetters).every(letter => 
-              revealedLetters.has(letter)
+            const allLettersRevealed = Array.from(newWord.toLowerCase()).every(letter => 
+              revealedLetters.has(letter as string)
             );
 
-            if (allLettersRevealed || scoreData.won) {
-              setGuesses([{
-                guess: scoreData.lastGuess || '',
-                revealedLetters: allLetters
-              }]);
-            } else {
-              setGuesses([{
-                guess: scoreData.lastGuess || '',
-                revealedLetters
-              }]);
+            if (allLettersRevealed) {
+              setHasWon(true);
             }
-            return;
           }
         }
       }
@@ -143,8 +116,9 @@ export default function Home() {
         letterCounts[letter] = (letterCounts[letter] || 0) + 1;
       });
       
-      const repeatedLetter = Object.entries(letterCounts)
-        .find(([letter, count]) => Number(count) > 1)?.[0];
+      // eslint-disable-next-line
+      const repeatedLetter = Object.keys(letterCounts)
+        .find(letter => letterCounts[letter] > 1);
         
       setGuesses([{
         guess: '',
@@ -193,7 +167,7 @@ export default function Home() {
     
     // Check if all letters are revealed
     const allLettersRevealed = Array.from(allLetters).every(letter => 
-      currentGuessState.revealedLetters.has(letter)
+      currentGuessState.revealedLetters.has(letter as string)
     );
     
     const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
@@ -249,7 +223,7 @@ export default function Home() {
     
     // Check if all letters are revealed after this guess
     const allLettersRevealedAfterGuess = Array.from(allLetters).every(letter => 
-      newRevealed.has(letter)
+      newRevealed.has(letter as string)
     );
     
     if (allLettersRevealedAfterGuess) {
@@ -312,7 +286,7 @@ export default function Home() {
 
     const allLetters = new Set(currentWord.toLowerCase().split(''));
     const allLettersRevealed = Array.from(allLetters).every(letter => 
-      newRevealed.has(letter)
+      newRevealed.has(letter as string)
     );
 
     setGuesses(prev => [
@@ -371,7 +345,7 @@ export default function Home() {
             <div>
               {showNextWordModal ? (
                 <div className="text-center mb-8">
-                  <h1 className="text-2xl font-bold mb-4">You've already played today's challenge!</h1>
+                  <h1 className="text-2xl font-bold mb-4">You&#39;ve already played today&#39;s challenge!</h1>
                   <p className="text-gray-600 mb-6">
                     Come back tomorrow for a new word. In the meantime, you can practice with random words in our practice mode.
                   </p>
@@ -430,7 +404,12 @@ export default function Home() {
 
                       {hasWon && (
                         <div className="mt-12">
-                          <VictoryDisplay score={score} attempts={attempts} isPractice={false} />
+                          <VictoryDisplay 
+                            score={score} 
+                            attempts={attempts} 
+                            timeTaken={startTime ? Math.floor((Date.now() - startTime) / 1000) : 0} 
+                            isPractice={false} 
+                          />
                         </div>
                       )}
 

@@ -9,7 +9,7 @@ export default function SignInForm() {
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
-  const { signInWithEmail, signInWithGoogle, signInWithFacebook, signUp } = useAuth();
+  const { signInWithGoogle, signInWithFacebook } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +17,7 @@ export default function SignInForm() {
 
     try {
       if (isSignUp) {
-        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -27,7 +27,7 @@ export default function SignInForm() {
         if (signUpError) throw signUpError;
         alert('Check your email for the confirmation link!');
       } else {
-        const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
+        const { error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });

@@ -126,7 +126,7 @@ const WordDisplay = ({
     <>
       <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
-          {Array.from(letterPatterns.entries()).map(([letter, patternId]) => {
+          {Array.from(letterPatterns.entries()).map(([letter]) => {
             const pattern = getPatternForLetter(letter, word.toLowerCase());
             return React.cloneElement(pattern.pattern as React.ReactElement, {
               key: letter,

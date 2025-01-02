@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+type UserData = {
+  totalScore: number;
+  totalGames: number;
+  gamesWon: number;
+  currentStreak?: number;
+};
+
 async function createUser(id: string, email: string) {
   return await prisma.user.create({
     data: {
@@ -20,7 +27,7 @@ async function getUserById(userId: string) {
   });
 }
 
-async function updateUser(userId: string, data: any) {
+async function updateUser(userId: string, data: UserData) {
   return await prisma.user.update({
     where: { id: userId },
     data: {

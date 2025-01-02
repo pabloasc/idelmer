@@ -1,6 +1,19 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+interface User {
+  email: string;
+  totalScore: number;
+  totalGames: number;
+  gamesWon: number;
+  currentStreak: number;
+  scores: {
+    score: number;
+    timeTaken: number | null;
+    hintsUsed: number | null;
+  }[];
+}
+
 export async function GET() {
   try {
     const users = await prisma.user.findMany({
@@ -16,7 +29,7 @@ export async function GET() {
       return NextResponse.json([], { status: 200 });
     }
 
-    const leaderboardData = users.map(user => {
+    const leaderboardData = users.map((user: User) => {
       const avgScore = user.scores.length > 0
         ? user.scores.reduce((sum, score) => sum + score.score, 0) / user.scores.length
         : 0;
@@ -42,7 +55,7 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json(leaderboardData);
+    return NextResponse.json(leaderboardData, { status: 200 });
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     return NextResponse.json(
