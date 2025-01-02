@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const dailyWord = await prisma.dailyWord.findFirst({
       where: {
         date: {
-          equals: new Date(today)
+          equals: new Date()
         }
       },
       select: {
