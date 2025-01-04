@@ -170,7 +170,7 @@ const PracticePage = () => {
       
       setGuesses(prev => [
         ...prev.slice(0, -1),
-        { ...prev[prev.length - 1], revealedLetters: newRevealed }
+        { ...prev[prev.length - 1], revealedLetters: newRevealed, guess: '' }
       ]);
       
       setScore(prev => Math.max(0, prev - 25));

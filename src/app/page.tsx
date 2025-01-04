@@ -291,7 +291,7 @@ export default function Home() {
 
     setGuesses(prev => [
       ...prev.slice(0, -1),
-      { ...prev[prev.length - 1], revealedLetters: newRevealed }
+      { ...prev[prev.length - 1], revealedLetters: newRevealed, guess: '' }
     ]);
 
     const newScore = Math.max(0, score - 25);
