@@ -6,7 +6,8 @@ import ScoreDisplay from '@/components/ScoreDisplay';
 import VictoryDisplay from '@/components/VictoryDisplay';
 import GameOverDisplay from '@/components/GameOverDisplay';
 import HintConfirmationModal from '@/components/HintConfirmationModal';
-import { getRandomWord } from '@/data/wordBank';
+import { startNewGame } from '@/utils/startNewGame';
+import { confirmHint } from '@/utils/confirmHint';
 
 interface GuessState {
   guess: string;
@@ -25,57 +26,22 @@ const PracticePage = () => {
   const [showHintConfirmation, setShowHintConfirmation] = useState<boolean>(false);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'expert'>('easy');
 
-  const generateColors = (word: string): { [key: string]: string } => {
-    const colors: { [key: string]: string } = {};
-    const uniqueLetters = Array.from(new Set(word.toLowerCase().split('')));
-    const colorOptions = [
-      'rgba(255, 182, 193, 0.3)', // Light pink
-      'rgba(152, 251, 152, 0.3)', // Pale green
-      'rgba(135, 206, 235, 0.3)', // Sky blue
-      'rgba(221, 160, 221, 0.3)', // Plum
-      'rgba(240, 230, 140, 0.3)', // Khaki
-      'rgba(230, 230, 250, 0.3)', // Lavender
-      'rgba(255, 160, 122, 0.3)', // Light salmon
-      'rgba(176, 224, 230, 0.3)', // Powder blue
-    ];
-    
-    const shuffledColors = [...colorOptions].sort(() => Math.random() - 0.5);
-    uniqueLetters.forEach((letter, index) => {
-      if (letter !== ' ') {
-        colors[letter] = shuffledColors[index % shuffledColors.length];
-      }
+  const handleStartNewGame = () => {
+    startNewGame({
+      difficulty,
+      setCurrentWord,
+      setLetterColors,
+      setAttempts,
+      setScore,
+      setHasWon,
+      setHasLost,
+      setError,
+      setGuesses,
     });
-    
-    return colors;
   };
 
-  const startNewGame = () => {
-    const newWord = getRandomWord(difficulty).toUpperCase();
-    setCurrentWord(newWord);
-    setLetterColors(generateColors(newWord));
-    setAttempts(1);
-    setScore(100);
-    setHasWon(false);
-    setHasLost(false);
-    setError('');
-    
-    // Reveal a repeated letter
-    const letterCounts: { [key: string]: number } = {};
-    newWord.toLowerCase().split('').forEach((letter: string) => {
-      letterCounts[letter] = (letterCounts[letter] || 0) + 1;
-    });
-    
-    //eslint-disable-next-line
-    const repeatedLetter = Object.entries(letterCounts).find(([letter, count]) => Number(count) > 1)?.[0];
-      
-    setGuesses([{
-      guess: '',
-      revealedLetters: new Set(repeatedLetter ? [repeatedLetter] : [])
-    }]);
-  };
-  
   useEffect(() => {
-    startNewGame();
+    handleStartNewGame();
   }, [difficulty]);
 
   const handleGuess = (guess: string) => {
@@ -149,32 +115,14 @@ const PracticePage = () => {
     window.location.reload();
   };
 
-  const confirmHint = () => {
-    if (!currentWord) return;
-    
-    setShowHintConfirmation(false);
-    
-    // Find an unrevealed letter that appears in the word
-    const currentRevealed = guesses[guesses.length - 1].revealedLetters;
-    const unrevealedLetters = currentWord
-      .toLowerCase()
-      .split('')
-      .filter(letter => !currentRevealed.has(letter));
-      
-    if (unrevealedLetters.length > 0) {
-      const randomIndex = Math.floor(Math.random() * unrevealedLetters.length);
-      const hintLetter = unrevealedLetters[randomIndex];
-      
-      const newRevealed = new Set(currentRevealed);
-      newRevealed.add(hintLetter);
-      
-      setGuesses(prev => [
-        ...prev.slice(0, -1),
-        { ...prev[prev.length - 1], revealedLetters: newRevealed, guess: '' }
-      ]);
-      
-      setScore(prev => Math.max(0, prev - 25));
-    }
+  const handleConfirmHint = () => {
+    confirmHint({
+      currentWord,
+      setShowHintConfirmation,
+      guesses,
+      setGuesses,
+      setScore,
+    });
   };
 
   return (
@@ -194,7 +142,7 @@ const PracticePage = () => {
               <option value="expert">Expert</option>
             </select>
             <button
-              onClick={startNewGame}
+              onClick={handleStartNewGame}
               className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
                 transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
             >
@@ -264,7 +212,7 @@ const PracticePage = () => {
 
       <HintConfirmationModal
         isOpen={showHintConfirmation}
-        onConfirm={confirmHint}
+        onConfirm={handleConfirmHint}
         onCancel={() => setShowHintConfirmation(false)}
       />
     </main>
