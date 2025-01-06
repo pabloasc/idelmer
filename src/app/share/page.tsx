@@ -10,6 +10,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 const GameScores = ({ gameData }: { gameData: { score: number, attempts: number, timeTaken: number } }) => (
   <div id="shareable-image" className="bg-white p-4 font-forum text-center">
+    <h1 className="text-2xl font-bold mb-2">idelmer.com</h1>
     <h1 className="text-xl font-bold mb-4">Game Results</h1>
     <p className="text-lg">Score: {gameData.score}</p>
     <p className="text-lg">Attempts: {gameData.attempts}</p>
@@ -22,6 +23,7 @@ const SharePage = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    setImageUrl(null); // Clear previous image URL on mount
     const storedGameData = localStorage.getItem('gameData');
     if (storedGameData) {
       const parsedData = JSON.parse(storedGameData);
@@ -67,7 +69,7 @@ const SharePage = () => {
     if (error) {
       console.error('Error uploading image:', error.message);
     } else {
-      const publicUrl = `${supabaseUrl}/storage/v1/object/public/share-images/${data.path}`;
+      const publicUrl = `${supabaseUrl}/storage/v1/object/public/share-images/${data.path}?t=${new Date().getTime()}`;
       setImageUrl(publicUrl);
     }
   };
