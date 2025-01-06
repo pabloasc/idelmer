@@ -34,6 +34,7 @@ const Home = () => {
   const [showHintConfirmation, setShowHintConfirmation] = useState<boolean>(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [showNextWordModal, setShowNextWordModal] = useState(false);
+  const [isWordLoaded, setIsWordLoaded] = useState<boolean>(false);
 
   const fetchDailyWord = async () => {
     if (!user) return;
@@ -108,6 +109,30 @@ const Home = () => {
     } catch (err) {
       console.error('Error fetching daily word:', err);
       setError(err instanceof Error ? err.message : 'Failed to load today\'s word');
+    } finally {
+      setIsWordLoaded(true);
+    }
+  };
+
+  const updateScore = async (won: boolean) => {
+    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+    try {
+      await createOrUpdateScore({
+        wordId: currentWordId,
+        score: score,
+        attempts: attempts,
+        won: won,
+        timeTaken: timeTaken,
+        hintsUsed: hintsUsed,
+      });
+
+      if (score === 0) {
+        setHasLost(true);
+      } else if (won) {
+        setHasWon(true);
+      }
+    } catch (error) {
+      console.error('Error saving score:', error);
     }
   };
 
@@ -141,30 +166,15 @@ const Home = () => {
   useEffect(() => {
     if (hasWon || hasLost) {
       updateScore(hasWon);
+
+      // Save relevant game data to localStorage
+      localStorage.setItem('gameData', JSON.stringify({
+        score,
+        attempts,
+        timeTaken: startTime ? Math.floor((Date.now() - startTime) / 1000) : 0,
+      }));
     }
   }, [hasWon, hasLost]);
-
-  const updateScore = async (won: boolean) => {
-    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
-    try {
-      await createOrUpdateScore({
-        wordId: currentWordId,
-        score: score,
-        attempts: attempts,
-        won: won,
-        timeTaken: timeTaken,
-        hintsUsed: hintsUsed,
-      });
-
-      if (score === 0) {
-        setHasLost(true);
-      } else if (won) {
-        setHasWon(true);
-      }
-    } catch (error) {
-      console.error('Error saving score:', error);
-    }
-  };
 
   const handleGuess = async (guess: string) => {
     if (!currentWord || hasWon || hasLost || !user || !currentWordId) return;
@@ -262,6 +272,14 @@ const Home = () => {
   const handlePlayAgain = () => {
     window.location.reload();
   };
+
+  if (!isWordLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <span className="text-xl text-gray-700 font-forum">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <>
