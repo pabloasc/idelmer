@@ -7,22 +7,20 @@ interface GuessState {
 
 interface ConfirmHintParams {
   currentWord: string;
-  setShowHintConfirmation: Dispatch<SetStateAction<boolean>>;
   guesses: GuessState[];
   setGuesses: Dispatch<SetStateAction<GuessState[]>>;
   setScore: Dispatch<SetStateAction<number>>;
+  setHasWon: Dispatch<SetStateAction<boolean>>;
 }
 
-export const confirmHint = ({
+export const confirmHint = async ({
   currentWord,
-  setShowHintConfirmation,
   guesses,
   setGuesses,
   setScore,
+  setHasWon,
 }: ConfirmHintParams) => {
   if (!currentWord) return;
-  
-  setShowHintConfirmation(false);
   
   // Find an unrevealed letter that appears in the word
   const currentRevealed = guesses[guesses.length - 1].revealedLetters;
@@ -44,5 +42,14 @@ export const confirmHint = ({
     ]);
     
     setScore(prev => Math.max(0, prev - 30));
+
+    const allLetters = new Set(currentWord.toLowerCase().split(''));
+    const allLettersRevealed = Array.from(allLetters).every(letter => 
+      newRevealed.has(letter as string)
+    );
+
+    if (allLettersRevealed) {
+      setHasWon(true);
+    }
   }
 };

@@ -116,12 +116,13 @@ const PracticePage = () => {
   };
 
   const handleConfirmHint = () => {
+    setShowHintConfirmation(false);
     confirmHint({
       currentWord,
-      setShowHintConfirmation,
       guesses,
       setGuesses,
       setScore,
+      setHasWon
     });
   };
 

@@ -12,6 +12,7 @@ import { createOrUpdateScore } from '@/services/userService';
 import Link from 'next/link';
 import Head from 'next/head';
 import { generateColors } from '@/utils/generateColors';
+import { confirmHint } from '@/utils/confirmHint';
 
 interface GuessState {
   guess: string;
@@ -136,6 +137,13 @@ const Home = () => {
     }
   }, [user]); // Add user as dependency
 
+  //Update DB score on win/loss
+  useEffect(() => {
+    if (hasWon || hasLost) {
+      updateScore(hasWon);
+    }
+  }, [hasWon, hasLost]);
+
   const updateScore = async (won: boolean) => {
     const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
     try {
@@ -176,8 +184,6 @@ const Home = () => {
         { guess: isCorrect ? guess : prev[prev.length - 1].guess, revealedLetters: allLetters }
       ]);
       setHasWon(true);
-      // Save score and update user stats
-      await updateScore(true);
       return;
     }
 
@@ -222,8 +228,6 @@ const Home = () => {
         { guess, revealedLetters: allLetters }
       ]);
       setHasWon(true);
-      // Save score and update user stats
-      await updateScore(true);
       return;
     }
     
@@ -235,7 +239,6 @@ const Home = () => {
     
     if (newScore === 0) {
       setHasLost(true);
-      await updateScore(false);
     }
   };
 
@@ -244,41 +247,16 @@ const Home = () => {
     setShowHintConfirmation(true);
   };
 
-  const confirmHint = async () => {
-    if (!currentWord || !user || !currentWordId) return;
-    
+  const handleConfirmHint = () => {
     setShowHintConfirmation(false);
-    
-    const currentRevealedLetters = guesses[guesses.length - 1].revealedLetters;
-    const unrevealedLetters = currentWord.toLowerCase().split('')
-      .filter(letter => !currentRevealedLetters.has(letter));
-
-    if (unrevealedLetters.length === 0) return;
-
-    const randomLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
-    const newRevealed = new Set(currentRevealedLetters);
-    newRevealed.add(randomLetter);
-
-    const allLetters = new Set(currentWord.toLowerCase().split(''));
-    const allLettersRevealed = Array.from(allLetters).every(letter => 
-      newRevealed.has(letter as string)
-    );
-
-    setGuesses(prev => [
-      ...prev.slice(0, -1),
-      { ...prev[prev.length - 1], revealedLetters: newRevealed, guess: '' }
-    ]);
-
-    const newScore = Math.max(0, score - 30);
-    setScore(newScore);
     setHintsUsed(prev => prev + 1);
-
-    // Update score in database
-    if (allLettersRevealed) {
-      setHasWon(true);
-      await updateScore(true);
-      return;
-    }
+    confirmHint({
+      currentWord,
+      guesses,
+      setGuesses,
+      setScore,
+      setHasWon
+    });
   };
 
   const handlePlayAgain = () => {
@@ -387,7 +365,7 @@ const Home = () => {
 
                     <HintConfirmationModal
                       isOpen={showHintConfirmation}
-                      onConfirm={confirmHint}
+                      onConfirm={handleConfirmHint}
                       onCancel={() => setShowHintConfirmation(false)}
                     />
                     
