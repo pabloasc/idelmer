@@ -166,17 +166,17 @@ const PracticePage = () => {
               <div className="flex justify-center font-forum">
                 <button
                   onClick={handleHint}
-                  disabled={score <= 0 || hasWon || hasLost || score < 25}
+                  disabled={score <= 0 || hasWon || hasLost || score < 30}
                   className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
                     transition-colors duration-200 ${
-                      score > 0 && !hasWon && !hasLost && score >= 25
+                      score > 0 && !hasWon && !hasLost && score >= 30
                         ? 'hover:bg-black hover:text-white'
                         : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
                     } font-forum`}
                 >
                   Request a Hint
                   <span className="block text-xs mt-1 font-serif text-gray-600 font-forum">
-                    -25 Points
+                    -30 Points
                   </span>
                 </button>
               </div>

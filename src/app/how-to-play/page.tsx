@@ -70,7 +70,7 @@ export default function HowToPlay() {
             <ul className="font-serif text-gray-700 space-y-4">
               <li>Start with 100 points</li>
               <li>Lose 20 points for each incorrect guess</li>
-              <li>Lose 25 points when using a hint</li>
+              <li>Lose 30 points when using a hint</li>
               <li>The game ends when you:
                 <ul className="ml-6 mt-2 space-y-2">
                   <li>Guess the word correctly</li>

@@ -21,7 +21,7 @@ interface GuessState {
 const Home = () => {
   const { user, loading } = useAuth();
   const [currentWord, setCurrentWord] = useState<string>('');
-  const [currentWordId, setCurrentWordId] = useState<number | null>(null);
+  const [currentWordId, setCurrentWordId] = useState<number>(0);
   const [guesses, setGuesses] = useState<GuessState[]>([]);
   const [letterColors, setLetterColors] = useState<{ [key: string]: string }>({});
   const [attempts, setAttempts] = useState<number>(1);
@@ -29,6 +29,7 @@ const Home = () => {
   const [error, setError] = useState<string>('');
   const [hasWon, setHasWon] = useState<boolean>(false);
   const [hasLost, setHasLost] = useState<boolean>(false);
+  const [hintsUsed, setHintsUsed] = useState<number>(0);
   const [showHintConfirmation, setShowHintConfirmation] = useState<boolean>(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [showNextWordModal, setShowNextWordModal] = useState(false);
@@ -135,6 +136,28 @@ const Home = () => {
     }
   }, [user]); // Add user as dependency
 
+  const updateScore = async (won: boolean) => {
+    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+    try {
+      await createOrUpdateScore({
+        wordId: currentWordId,
+        score: score,
+        attempts: attempts,
+        won: won,
+        timeTaken: timeTaken,
+        hintsUsed: hintsUsed,
+      });
+
+      if (score === 0) {
+        setHasLost(true);
+      } else if (won) {
+        setHasWon(true);
+      }
+    } catch (error) {
+      console.error('Error saving score:', error);
+    }
+  };
+
   const handleGuess = async (guess: string) => {
     if (!currentWord || hasWon || hasLost || !user || !currentWordId) return;
     
@@ -147,8 +170,6 @@ const Home = () => {
       currentGuessState.revealedLetters.has(letter as string)
     );
     
-    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
-
     if (isCorrect || allLettersRevealed) {
       setGuesses(prev => [
         ...prev.slice(0, -1),
@@ -156,15 +177,7 @@ const Home = () => {
       ]);
       setHasWon(true);
       // Save score and update user stats
-      await 
-        createOrUpdateScore({
-          wordId: currentWordId,
-          score: score,
-          attempts: attempts,
-          won: true,
-          timeTaken: timeTaken,
-          hintsUsed: 1
-        }).catch(console.error);
+      await updateScore(true);
       return;
     }
 
@@ -210,14 +223,7 @@ const Home = () => {
       ]);
       setHasWon(true);
       // Save score and update user stats
-      await createOrUpdateScore({
-          wordId: currentWordId,
-          score: newScore,
-          attempts: newAttempts,
-          won: true,
-          timeTaken: timeTaken,
-          hintsUsed: 2
-        }).catch(console.error);
+      await updateScore(true);
       return;
     }
     
@@ -227,18 +233,10 @@ const Home = () => {
       { guess: '', revealedLetters: newRevealed }
     ]);
     
-      if (newScore === 0) {
-        setHasLost(true);
-
-        await createOrUpdateScore({
-          wordId: currentWordId,
-          score: newScore,
-          attempts: newAttempts,
-          won: false,
-          timeTaken: timeTaken,
-          hintsUsed: 3
-        });
-      }
+    if (newScore === 0) {
+      setHasLost(true);
+      await updateScore(false);
+    }
   };
 
   const handleHint = () => {
@@ -271,29 +269,15 @@ const Home = () => {
       { ...prev[prev.length - 1], revealedLetters: newRevealed, guess: '' }
     ]);
 
-    const newScore = Math.max(0, score - 25);
+    const newScore = Math.max(0, score - 30);
     setScore(newScore);
-
-    const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+    setHintsUsed(prev => prev + 1);
 
     // Update score in database
-    try {
-      await createOrUpdateScore({
-        wordId: currentWordId,
-        score: newScore,
-        attempts: attempts,
-        won: allLettersRevealed,
-        timeTaken: timeTaken,
-        hintsUsed: 1
-      });
-      
-      if (newScore === 0) {
-        setHasLost(true);
-      } else if (allLettersRevealed) {
-        setHasWon(true);
-      }
-    } catch (error) {
-      console.error('Error saving score:', error);
+    if (allLettersRevealed) {
+      setHasWon(true);
+      await updateScore(true);
+      return;
     }
   };
 
@@ -347,17 +331,17 @@ const Home = () => {
                       <div className="flex justify-center font-forum">
                         <button
                           onClick={handleHint}
-                          disabled={score <= 0 || hasWon || hasLost || score < 25}
+                          disabled={score <= 0 || hasWon || hasLost || score <= 30}
                           className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
                             transition-colors duration-200 ${
-                              score > 0 && !hasWon && !hasLost && score >= 25
+                              score > 0 && !hasWon && !hasLost && score >= 30
                                 ? 'hover:bg-black hover:text-white'
                                 : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
                             } font-forum`}
                         >
                           Request a Hint
                           <span className="block text-xs mt-1 font-serif text-gray-600 font-forum">
-                            -25 Points
+                            -30 Points
                           </span>
                         </button>
                       </div>

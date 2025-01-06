@@ -28,7 +28,7 @@ const HintConfirmationModal = ({ isOpen, onConfirm, onCancel }: HintConfirmation
       >
         <h2 className="font-playfair italic text-2xl mb-6">Use a Hint?</h2>
         <p className="text-lg mb-4">
-          This will reveal a random letter and cost you 25 points.
+          This will reveal a random letter and cost you 30 points.
         </p>
         <div className="flex flex-col gap-4 mt-8">
           <button

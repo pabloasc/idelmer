@@ -43,6 +43,6 @@ export const confirmHint = ({
       { ...prev[prev.length - 1], revealedLetters: newRevealed, guess: '' }
     ]);
     
-    setScore(prev => Math.max(0, prev - 25));
+    setScore(prev => Math.max(0, prev - 30));
   }
 };
