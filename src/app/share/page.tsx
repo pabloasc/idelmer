@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { toJpeg } from 'html-to-image';
 import { createClient } from '@supabase/supabase-js';
 
@@ -8,55 +8,69 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const GameScores = ({ gameData }: { gameData: { score: number, attempts: number, timeTaken: number } }) => (
+  <div id="shareable-image" className="bg-white p-4 font-forum text-center">
+    <h1 className="text-xl font-bold mb-4">Game Results</h1>
+    <p className="text-lg">Score: {gameData.score}</p>
+    <p className="text-lg">Attempts: {gameData.attempts}</p>
+    <p className="text-lg">Time Taken: {gameData.timeTaken} seconds</p>
+  </div>
+);
+
 const SharePage = () => {
-  const [gameData, setGameData] = useState({ score: 0, attempts: 0, timeTaken: 0 });
+  const [gameData, setGameData] = useState<{ score: number, attempts: number, timeTaken: number } | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const storedGameData = localStorage.getItem('gameData');
     if (storedGameData) {
-      setGameData(JSON.parse(storedGameData));
-    }
-
-    const getUserId = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error('Error fetching user ID:', error);
-        return null;
-      }
-      return user?.id;
-    };
-
-    const uploadImage = async (dataUrl: string) => {
-      const userId = await getUserId();
-      if (!userId) {
-        console.error('User ID not available. Cannot upload image.');
-        return;
-      }
-      const blob = await (await fetch(dataUrl)).blob();
-      const { data, error } = await supabase.storage
-        .from('share-images')
-        .upload(`${userId}.jpeg`, blob, { upsert: true });
-
-      if (error) {
-        console.error('Error uploading image:', error.message);
-      } else {
-        const publicUrl = `${supabaseUrl}/storage/v1/object/public/share-images/${data.path}`;
-        setImageUrl(publicUrl);
-      }
-    };
-
-    const node = document.getElementById('shareable-image');
-    if (node) {
-      toJpeg(node)
-        .then((dataUrl) => {
-          uploadImage(dataUrl);
-        })
-        .catch((error) => {
-          console.error('Error generating image:', error);
-        });
+      const parsedData = JSON.parse(storedGameData);
+      setGameData(parsedData);
     }
   }, []);
+
+  useEffect(() => {
+    if (gameData) {
+      const node = document.getElementById('shareable-image');
+      if (node) {
+        toJpeg(node)
+          .then((dataUrl) => {
+            uploadImage(dataUrl);
+          })
+          .catch((error) => {
+            console.error('Error generating image:', error);
+          });
+      }
+    }
+  }, [gameData]);
+
+  const getUserId = async () => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) {
+      console.error('Error fetching user ID:', error);
+      return null;
+    }
+    return user?.id;
+  };
+
+  const uploadImage = async (dataUrl: string) => {
+    const userId = await getUserId();
+    if (!userId) {
+      console.error('User ID not available. Cannot upload image.');
+      return;
+    }
+    const blob = await (await fetch(dataUrl)).blob();
+    const { data, error } = await supabase.storage
+      .from('share-images')
+      .upload(`${userId}.jpeg`, blob, { upsert: true });
+
+    if (error) {
+      console.error('Error uploading image:', error.message);
+    } else {
+      const publicUrl = `${supabaseUrl}/storage/v1/object/public/share-images/${data.path}`;
+      setImageUrl(publicUrl);
+    }
+  };
 
   return (
     <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
@@ -79,12 +93,9 @@ const SharePage = () => {
           </div>
         </>
       ) : (
-        <div id="shareable-image" className="bg-white p-4 font-forum text-center">
-          <h1 className="text-xl font-bold mb-4">Game Results</h1>
-          <p className="text-lg">Score: {gameData.score}</p>
-          <p className="text-lg">Attempts: {gameData.attempts}</p>
-          <p className="text-lg">Time Taken: {gameData.timeTaken} seconds</p>
-        </div>
+        <Suspense fallback={<div>Loading...</div>}>
+          {gameData && <GameScores gameData={gameData} />}
+        </Suspense>
       )}
     </div>
   );
