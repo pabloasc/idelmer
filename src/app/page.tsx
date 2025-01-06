@@ -273,7 +273,7 @@ const Home = () => {
     window.location.reload();
   };
 
-  if (!isWordLoaded) {
+  if (!isWordLoaded && user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <span className="text-xl text-gray-700 font-forum">Loading...</span>
