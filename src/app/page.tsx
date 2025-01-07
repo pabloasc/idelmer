@@ -56,41 +56,7 @@ const Home = () => {
       setCurrentWord(newWord);
       setCurrentWordId(data.id);
       setLetterColors(generateColors(newWord));
-
-      // Get existing game state if it exists
-      if (user) {
-        const scoreResponse = await fetch(`/api/score?wordId=${data.id}`);
-        if (scoreResponse.ok) {
-          const scoreData = await scoreResponse.json();
-          if (scoreData) {
-            // Initialize sets for revealed letters
-            const revealedLetters = new Set<string>();
-
-            // Add all revealed letters
-            newWord.toLowerCase().split('').forEach((letter: string) => {
-              if (scoreData.revealedLetters?.includes(letter)) {
-                revealedLetters.add(letter);
-              }
-            });
-
-            setScore(scoreData.score);
-            setAttempts(scoreData.attempts);
-            setHasWon(scoreData.won);
-            setHasLost(scoreData.lost);
-
-            // Check if all letters are revealed
-            const allLettersRevealed = Array.from(newWord.toLowerCase()).every(letter => 
-              revealedLetters.has(letter as string)
-            );
-
-            if (allLettersRevealed) {
-              setHasWon(true);
-            }
-          }
-        }
-      }
       
-      // If no existing game state, start a new game
       // Reveal a repeated letter
       const letterCounts: { [key: string]: number } = {};
       newWord.toLowerCase().split('').forEach((letter: string) => {

@@ -46,7 +46,7 @@ async function fetchUserStats(userId: string) {
 }
 
 
-async function updateUserStats(userId: string, score: number, won: boolean) {
+async function updateUserStats(userId: string, token: string, score: number, won: boolean) {
   try {
     const user = await fetchUserStats(userId);
 
@@ -54,6 +54,7 @@ async function updateUserStats(userId: string, score: number, won: boolean) {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
         totalScore: (user.totalScore || 0) + score,
@@ -111,7 +112,7 @@ export async function createOrUpdateScore(scoreData: ScoreData) {
 
     const score = await scoreResponse.json();
 
-    await updateUserStats(user.id, scoreData.score, scoreData.won);
+    await updateUserStats(user.id, token, scoreData.score, scoreData.won);
 
     return score;
   } catch (error) {
