@@ -60,6 +60,14 @@ export default function Header() {
             >
               Leaderboard
             </Link>
+            {!user && (
+              <Link
+                href="/"
+                className="hidden sm:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
+              >
+                Sign In
+              </Link>
+            )}
             {user && (
               <button
                 onClick={() => signOut()}
@@ -97,6 +105,14 @@ export default function Header() {
               >
                 Leaderboard
               </Link>
+              {!user && (
+                <Link
+                  href="/"
+                  className="block px-3 py-2 rounded-md text-base font-semibold text-black hover:text-gray-700 hover:bg-gray-100"
+                >
+                  Sign In
+                </Link>
+              )}
               {user && (
                 <button
                   onClick={() => signOut()}

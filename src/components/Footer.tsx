@@ -24,6 +24,12 @@ export default function Footer() {
           <Link href="/how-to-play" className="text-gray-600 hover:text-black font-forum">
             How to Play
           </Link>
+          <Link href="/privacy-policy" className="text-gray-600 hover:text-black font-forum">
+            Privacy Policy
+          </Link>
+          <Link href="/terms-and-conditions" className="text-gray-600 hover:text-black font-forum">
+            Terms and Conditions
+          </Link>
         </div>
 
         {/* Copyright */}
