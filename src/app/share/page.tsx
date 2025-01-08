@@ -9,12 +9,15 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const GameScores = ({ gameData }: { gameData: { score: number, attempts: number, timeTaken: number } }) => (
-  <div id="shareable-image" className="bg-white p-4 font-forum text-center">
-    <h1 className="text-2xl font-bold mb-2">idelmer.com</h1>
-    <h1 className="text-xl font-bold mb-4">Game Results</h1>
-    <p className="text-lg">Score: {gameData.score}</p>
-    <p className="text-lg">Attempts: {gameData.attempts}</p>
-    <p className="text-lg">Time Taken: {gameData.timeTaken} seconds</p>
+  <div className="p-4 bg-gray-100 rounded-lg shadow-md">
+    <div id="shareable-image" className="bg-white p-4 font-forum text-center rounded-lg border-4 border-gray-300">
+      <img src="/logo.png" alt="Idelmer Logo" className="mx-auto mb-2 h-12 w-auto" />
+      <h1 className="text-xl font-bold mb-4">Game Results</h1>
+      <p className="text-lg">Score: {gameData.score}</p>
+      <p className="text-lg">Attempts: {gameData.attempts}</p>
+      <p className="text-lg">Time Taken: {gameData.timeTaken} seconds</p>
+      <div className="mt-4 text-sm text-gray-500">idelmer.com</div>
+    </div>
   </div>
 );
 
