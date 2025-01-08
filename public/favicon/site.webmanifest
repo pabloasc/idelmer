@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "idelmer.com",
+  "short_name": "idelmer",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -13,6 +13,16 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "/favicon/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
     }
   ],
   "theme_color": "#ffffff",

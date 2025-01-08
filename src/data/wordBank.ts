@@ -1,5 +1,9 @@
 export const easyWords = [
-  'idelmer'
+  'banana', 'pepper', 'coffee', 'summer', 'butter', 'cheese', 
+  'cotton', 'dinner', 'google', 'hammer', 'letter', 'mirror',
+  'rabbit', 'school', 'soccer', 'tennis', 'yellow', 'bubble',
+  'cookie', 'bottle', 'puppet', 'kitten', 'little', 'middle',
+  'puddle', 'rubber', 'summer', 'tunnel', 'zipper', 'better'
 ];
 
 export const mediumWords = [
