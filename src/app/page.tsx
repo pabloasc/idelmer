@@ -192,13 +192,12 @@ const Home = () => {
     <>
       <Head>
         <title>Idelmer - Stay Curious. Stay Clever. Play Idelmer.</title>
-        <meta name="description" content="Join our daily challenge word puzzle to test your skills and improve your vocabulary. Play now and enjoy a new word puzzle every day!" />
+        <meta name="description" content="Idelmer is your ultimate daily word puzzle challenge. Enhance your vocabulary and test your skills with new puzzles every day. Join our community of word enthusiasts and improve your language skills in a fun and engaging way." />
         <meta name="keywords" content="word puzzle, daily challenge, vocabulary game, word game, puzzle game" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon/favicon-96x96.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 font-forum">
