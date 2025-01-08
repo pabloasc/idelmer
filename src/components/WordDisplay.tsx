@@ -136,7 +136,7 @@ const WordDisplay = ({
         </defs>
       </svg>
       <div 
-        className={`flex flex-col items-center gap-4 ${!isActive ? 'opacity-60' : ''}`}
+        className={`flex flex-col items-center gap-2 ${!isActive ? 'opacity-60' : ''}`}
         onClick={handleContainerClick}
       >
         {isActive && (
@@ -146,13 +146,13 @@ const WordDisplay = ({
             value=""
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            onFocus={() => setIsFocused(true)}
+            onFocus={() => setIsFocused(true)} 
             onBlur={() => setIsFocused(false)}
             className="opacity-0 absolute w-px h-px"
             autoFocus={isActive}
           />
         )}
-        <div className="flex flex-wrap justify-center gap-4 my-8 relative">
+        <div className="flex flex-wrap justify-center gap-2 my-8 relative">
           {word.split('').map((letter, index) => {
             const pos = letterPositions[index];
             const inputIndex = !pos.isRevealed ? emptyPositions.findIndex(p => p.index === index) : -1;
@@ -169,8 +169,8 @@ const WordDisplay = ({
               <div key={index} className="flex flex-col items-center gap-1">
                 <div className="relative">
                   <div 
-                    className={`h-12 w-8 flex items-end justify-center font-serif text-2xl relative rounded-sm overflow-hidden
-                      ${pos.isRevealed ? 'text-green-600 font-bold' : ''}`}
+                    className={`h-10 w-8 flex items-end justify-center font-forum text-2xl relative rounded-sm overflow-hidden
+                      ${pos.isRevealed ? 'text-green-600 font-bold' : 'font-bold'}`}
                     style={{
                       backgroundColor: bgColor || 'rgba(240, 240, 240, 0.3)',
                     }}

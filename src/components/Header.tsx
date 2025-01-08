@@ -14,7 +14,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-20">
           <div className="flex flex-col items-center">
             <Link href="/" className="text-3xl sm:text-4xl font-extrabold tracking-wide text-black">
-              IDELMER
+            <img src="/logo.png" alt="Idelmer Logo" className="h-12 w-auto" />
             </Link>
           </div>
           <nav className="flex items-center space-x-6">
