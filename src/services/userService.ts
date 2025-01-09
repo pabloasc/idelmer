@@ -60,7 +60,14 @@ async function updateUserStats(userId: string, token: string, score: number, won
         totalScore: (user.totalScore || 0) + score,
         totalGames: user.totalGames + 1,
         gamesWon: user.gamesWon + (won ? 1 : 0),
-        currentStreak: 0
+        currentStreak: (() => {
+          const updatedAtDate = new Date(user.updatedAt);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          updatedAtDate.setHours(0, 0, 0, 0);
+          const isPreviousDay = (today.getTime() - updatedAtDate.getTime()) === (24 * 60 * 60 * 1000);
+          return isPreviousDay ? (user.currentStreak || 0) + 1 : 1;
+        })()
       }),
     });
 
