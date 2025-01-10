@@ -300,7 +300,7 @@ const Home = () => {
             >
                   Practice Area
                 </Link>
-                <div className="text-center text-gray-500">- or -</div>
+                <div className="text-center text-gray-500 font-bold">- or -</div>
                 <SignInForm />
               </div>
             </div>
