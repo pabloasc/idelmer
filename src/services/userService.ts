@@ -1,12 +1,13 @@
 import { supabase } from '@/lib/supabase';
 import { User } from '@supabase/supabase-js';
 
-export async function createOrUpdateUser(supabaseUser: User) {
+export async function createOrUpdateUser(supabaseUser: User, token?: string) {
   try {
     const response = await fetch('/api/user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
       body: JSON.stringify({
         id: supabaseUser.id,
@@ -46,7 +47,7 @@ async function fetchUserStats(userId: string) {
 }
 
 
-async function updateUserStats(userId: string, token: string, score: number, won: boolean) {
+async function updateUserStats(userId: string, score: number, won: boolean, token?: string) {
   try {
     const user = await fetchUserStats(userId);
 
@@ -89,10 +90,10 @@ export async function createOrUpdateScore(scoreData: ScoreData) {
       throw new Error('No authenticated user found');
     }
 
-    // Ensure the user exists in the database
-    await createOrUpdateUser(user);
-
     const token = await supabase.auth.getSession().then(({ data }) => data.session?.access_token);
+    // Ensure the user exists in the database
+    
+    await createOrUpdateUser(user, token);
 
     const scoreResponse = await fetch('/api/score', {
       method: 'POST',
@@ -119,7 +120,7 @@ export async function createOrUpdateScore(scoreData: ScoreData) {
 
     const score = await scoreResponse.json();
 
-    await updateUserStats(user.id, token as string, scoreData.score, scoreData.won);
+    await updateUserStats(user.id, scoreData.score, scoreData.won, token);
 
     return score;
   } catch (error) {
