@@ -1,7 +1,9 @@
 'use client';
+export const fetchCache = 'force-no-store'
 
 import { useState, useEffect } from 'react';
 import { getLeaderboard } from '@/services/userService';
+
 
 interface LeaderboardEntry {
   email: string;
