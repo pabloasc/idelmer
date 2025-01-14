@@ -19,6 +19,8 @@ model DailyWord {
 model User {
   id            String   @id
   email         String   @unique
+  username      String
+  language      String   @default("english")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   totalScore    Int      @default(0)

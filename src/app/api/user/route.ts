@@ -9,10 +9,12 @@ type UserData = {
 };
 
 async function createUser(id: string, email: string) {
+  const username = email.split('@')[0];
   return await prisma.user.create({
     data: {
       id,
       email,
+      username,
       totalScore: 0,
       totalGames: 0,
       gamesWon: 0,
@@ -27,15 +29,17 @@ async function getUserById(userId: string) {
   });
 }
 
-async function updateUser(userId: string, data: UserData) {
+async function updateUser(userId: string, data: Partial<UserData & { username?: string; language?: string }>) {
   return await prisma.user.update({
     where: { id: userId },
     data: {
       totalScore: data.totalScore,
       totalGames: data.totalGames,
       gamesWon: data.gamesWon,
-      currentStreak: data.currentStreak
-    }
+      currentStreak: data.currentStreak,
+      username: data.username,
+      language: data.language,
+    },
   });
 }
 

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 
 interface User {
   email: string;
+  username: string;
   totalScore: number;
   totalGames: number;
   gamesWon: number;
@@ -17,7 +18,13 @@ interface User {
 export async function GET() {
   try {
     const users = await prisma.user.findMany({
-      include: {
+      select: {
+        email: true,
+        username: true,
+        totalScore: true,
+        totalGames: true,
+        gamesWon: true,
+        currentStreak: true,
         scores: true,
       },
       orderBy: {
@@ -33,17 +40,18 @@ export async function GET() {
       const avgScore = user.scores.length > 0
         ? user.scores.reduce((sum, score) => sum + score.score, 0) / user.scores.length
         : 0;
-      
+
       const avgTime = user.scores
         .filter(score => score.timeTaken !== null)
         .reduce((sum, score) => sum + (score.timeTaken || 0), 0) / 
         (user.scores.filter(score => score.timeTaken !== null).length || 1);
-      
+
       const totalHints = user.scores
         .reduce((sum, score) => sum + (score.hintsUsed || 0), 0);
 
       return {
         email: user.email,
+        username: user.username,
         totalScore: user.totalScore,
         totalGames: user.totalGames,
         gamesWon: user.gamesWon,
