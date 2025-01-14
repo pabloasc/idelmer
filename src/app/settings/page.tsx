@@ -7,7 +7,7 @@ const SettingsPage = () => {
   const [user, setUser] = useState<{ id: string; email: string; username: string; language: string } | null>(null);
   const [username, setUsername] = useState('');
   const [language, setLanguage] = useState('english');
-  const { user: authUser, loading } = useAuth();
+  const { user: authUser, loading, signOut } = useAuth();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -92,6 +92,12 @@ const SettingsPage = () => {
         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
       >
         Save Settings
+      </button>
+      <button
+        onClick={signOut}
+        className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+      >
+        Sign Out
       </button>
     </div>
   );

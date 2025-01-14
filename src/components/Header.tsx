@@ -2,11 +2,30 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function Header() {
   const { user, signOut } = useAuth();
+  const [username, setUsername] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (!user) return;
+      try {
+        const response = await fetch(`/api/user?userId=${user.id}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch username');
+        }
+        const data = await response.json();
+        setUsername(data.username);
+      } catch (error) {
+        console.error('Error fetching username:', error);
+      }
+    };
+
+    fetchUsername();
+  }, [user]);
 
   return (
     <header className="bg-white shadow-md relative z-50 border-b-4 border-black font-forum">
@@ -14,7 +33,7 @@ export default function Header() {
         <div className="flex justify-between items-center h-20">
           <div className="flex flex-col items-center">
             <Link href="/" className="text-3xl sm:text-4xl font-extrabold tracking-wide text-black">
-            <img src="/logo.png" alt="Idelmer Logo" className="h-12 w-auto object-contain" />
+              <img src="/logo.png" alt="Idelmer Logo" className="h-12 w-auto object-contain" />
             </Link>
           </div>
           <nav className="flex items-center space-x-4">
@@ -68,7 +87,11 @@ export default function Header() {
                 Sign In
               </Link>
             )}
-            {user && (
+            {user && username ? (
+              <Link href="/settings" className="ml-4 text-sm text-gray-600">
+                Welcome, {username}
+              </Link>
+            ) : (
               <button
                 onClick={() => signOut()}
                 className="hidden sm:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
@@ -113,7 +136,11 @@ export default function Header() {
                   Sign In
                 </Link>
               )}
-              {user && (
+              {user && username ? (
+                <Link href="/settings" className="ml-4 text-sm text-gray-600">
+                  {username}
+                </Link>
+              ) : (
                 <button
                   onClick={() => signOut()}
                   className="block px-3 py-2 rounded-md text-base font-semibold text-black hover:text-gray-700 hover:bg-gray-100"
