@@ -201,12 +201,22 @@ const Home = () => {
                   <p className="text-gray-600 mb-6">
                     Come back tomorrow for a new word. In the meantime, you can practice with random words in our practice mode.
                   </p>
-                  <Link
-                    href="/practice"
-                    className="w-full px-4 py-2 bg-green-500 text-white rounded-lg text-center hover:bg-green-600 transition-colors font-forum"
-                  >
-                    Go to Practice Area
-                  </Link>
+                  <div className="space-y-4">
+                    <Link
+                      href="/practice"
+                      className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                        transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
+                    >
+                      Go to Practice Area
+                    </Link>
+                    <Link
+                      href="/leaderboard"
+                      className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider ml-4
+                        transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
+                    >
+                      View the Leaderboard
+                    </Link>
+                  </div>
                 </div>
               ) : (
                 <div>
