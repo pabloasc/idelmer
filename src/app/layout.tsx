@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const inter = Inter({ subsets: ['latin'] })
 const playfair = Playfair_Display({ 
@@ -43,6 +44,7 @@ export default function RootLayout({
           <Footer />
         </AuthProvider>
       </body>
+      <GoogleAnalytics gaId="G-7BZLT100ZJ" />
     </html>
   )
 }
