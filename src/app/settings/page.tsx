@@ -57,49 +57,54 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Settings</h1>
-      {user && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">User Information</h2>
-          <p><strong>Email:</strong> {user.email}</p>
-          <p><strong>Username:</strong> {user.username}</p>
+    <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24 font-forum">
+      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm font-forum">
+        <div className="text-center mb-8 font-forum">
+          <h1 className="text-4xl font-bold mb-4 font-forum">Settings</h1>
         </div>
-      )}
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Username</label>
-        <input
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          placeholder={user?.username || user?.email.split('@')[0]}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        />
+        <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => {
+                if (e.target.value.length <= 25) {
+                  setUsername(e.target.value);
+                }
+              }}
+              placeholder={user?.username || user?.email.split('@')[0]}
+              className="mt-1 block w-full px-4 py-2 border-2 border-black rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-forum"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Preferred Language (beta)</label>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="mt-1 block w-full px-4 py-2 border-2 border-black rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-forum"
+            >
+              <option value="english">English</option>
+              <option value="spanish">Spanish</option>
+            </select>
+          </div>
+          <div className="flex justify-between space-x-4">
+            <button
+              onClick={handleSave}
+              className="w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider transition-colors duration-200 hover:bg-black hover:text-white font-forum"
+            >
+              Save Settings
+            </button>
+            <button
+              onClick={signOut}
+              className="w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider transition-colors duration-200 hover:bg-red-500 hover:text-white font-forum"
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
       </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Preferred Language</label>
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        >
-          <option value="english">English</option>
-          <option value="spanish">Spanish</option>
-        </select>
-      </div>
-      <button
-        onClick={handleSave}
-        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-      >
-        Save Settings
-      </button>
-      <button
-        onClick={signOut}
-        className="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-      >
-        Sign Out
-      </button>
-    </div>
+    </main>
   );
 };
 

@@ -3,23 +3,22 @@ export const fetchCache = 'force-no-store'
 
 import { useState, useEffect } from 'react';
 import { getLeaderboard } from '@/services/userService';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 interface LeaderboardEntry {
   email: string;
+  username: string;
   totalScore: number;
   totalGames: number;
   gamesWon: number;
   winRate: string;
   currentStreak: number;
   averageScore: number;
-  averageTime: number;
+  averageTime: number; 
   totalHints: number;
 }
 
-const getUsername = (email: string) => {
-  return email.split('@')[0];
-};
 
 const formatTime = (seconds: number) => {
   if (seconds === 0) return '-';
@@ -34,6 +33,7 @@ export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -95,7 +95,7 @@ export default function LeaderboardPage() {
             {leaderboard.map((entry, index) => (
               <tr key={entry.email} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{index + 1}</td>
-                <td className="px-4 py-3 text-sm font-medium text-gray-900 font-forum">{getUsername(entry.email)}</td>
+                <td className={`px-4 py-3 text-sm font-forum ${authUser?.email === entry.email ? 'font-extrabold text-fuchsia-800' : 'font-medium'} text-gray-600`}>{entry.username}</td>
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.totalScore.toLocaleString()}</td>
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{`${entry.gamesWon}/${entry.totalGames}`}</td>
                 <td className="px-4 py-3 text-sm text-gray-900 font-forum">{entry.winRate}%</td>

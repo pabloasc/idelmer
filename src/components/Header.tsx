@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function Header() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const [username, setUsername] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchUsername = async () => {
@@ -27,6 +28,19 @@ export default function Header() {
     fetchUsername();
   }, [user]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
     <header className="bg-white shadow-md relative z-50 border-b-4 border-black font-forum">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,7 +51,7 @@ export default function Header() {
             </Link>
           </div>
           <nav className="flex items-center space-x-4">
-            <div className="sm:hidden">
+            <div className="md:hidden">
               <button
                 className="text-black hover:text-gray-700 focus:outline-none"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -57,52 +71,45 @@ export default function Header() {
             </div>
             <Link 
               href="/how-to-play" 
-              className="hidden sm:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
+              className="hidden md:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
             >
               How to Play
             </Link>
             <Link 
               href="/" 
-              className="hidden sm:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
+              className="hidden md:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
             >
               Daily Word
             </Link>
             <Link 
               href="/practice" 
-              className="hidden sm:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
+              className="hidden md:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
             >
               Practice
             </Link>
             <Link 
               href="/leaderboard" 
-              className="hidden sm:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
+              className="hidden md:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
             >
               Leaderboard
             </Link>
             {!user && (
               <Link
                 href="/"
-                className="hidden sm:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
+                className="hidden md:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
               >
                 Sign In
               </Link>
             )}
-            {user && username ? (
-              <Link href="/settings" className="ml-4 text-sm text-gray-600">
-                Welcome, {username}
+            {user && username && (
+              <Link href="/settings" className="hidden md:block text-fuchsia-800 hover:text-fuchsia-600 px-3 py-2 rounded-md text-base font-semibold">
+                {username}
               </Link>
-            ) : (
-              <button
-                onClick={() => signOut()}
-                className="hidden sm:block text-black hover:text-gray-700 px-3 py-2 rounded-md text-base font-semibold"
-              >
-                Sign Out
-              </button>
             )}
           </nav>
         </div>
         {isMobileMenuOpen && (
-          <div className="sm:hidden">
+          <div ref={menuRef} className="sm:hidden">
             <div className="pt-2 pb-3 space-y-1">
               <Link
                 href="/how-to-play"
@@ -136,17 +143,10 @@ export default function Header() {
                   Sign In
                 </Link>
               )}
-              {user && username ? (
-                <Link href="/settings" className="ml-4 text-sm text-gray-600">
+              {user && username && (
+                <Link href="/settings" className="block px-3 py-2 rounded-md text-base font-semibold text-fuchsia-800 hover:text-fuchsia-600 hover:text-gray-700 hover:bg-gray-100">
                   {username}
                 </Link>
-              ) : (
-                <button
-                  onClick={() => signOut()}
-                  className="block px-3 py-2 rounded-md text-base font-semibold text-black hover:text-gray-700 hover:bg-gray-100"
-                >
-                  Sign Out
-                </button>
               )}
             </div>
           </div>
