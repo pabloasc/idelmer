@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function Header() {
   const { user } = useAuth();
@@ -51,7 +51,7 @@ export default function Header() {
             </Link>
           </div>
           <nav className="flex items-center space-x-4">
-            <div className="md:hidden">
+            <div className="sm:hidden">
               <button
                 className="text-black hover:text-gray-700 focus:outline-none"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
