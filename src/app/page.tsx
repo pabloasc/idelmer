@@ -80,8 +80,14 @@ const Home = () => {
     }
   };
 
-  const updateScore = async (won: boolean) => {
+  const updateScore = async (won: boolean): Promise<void> => {
     const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
+    
+    if (!currentWordId) {
+      console.error('No word ID available');
+      return;
+    }
+
     try {
       await createOrUpdateScore({
         wordId: currentWordId,
@@ -99,6 +105,7 @@ const Home = () => {
       }
     } catch (error) {
       console.error('Error saving score:', error);
+      throw error; // Re-throw to handle in the calling function
     }
   };
 
@@ -130,16 +137,23 @@ const Home = () => {
 
   //Update DB score on win/loss
   useEffect(() => {
-    if (hasWon || hasLost) {
-      updateScore(hasWon);
-
-      // Save relevant game data to localStorage
-      localStorage.setItem('gameData', JSON.stringify({
-        score,
-        attempts,
-        timeTaken: startTime ? Math.floor((Date.now() - startTime) / 1000) : 0,
-      }));
-    }
+    const saveGameData = async () => {
+      try {
+        await updateScore(hasWon);
+        
+        // Only save to localStorage after successful DB update
+        const gameData = {
+          score,
+          attempts,
+          timeTaken: startTime ? Math.floor((Date.now() - startTime) / 1000) : 0,
+        };
+        localStorage.setItem('gameData', JSON.stringify(gameData));
+      } catch (error) {
+        console.error('Failed to save game data:', error);
+      }
+    };
+    // Immediately invoke the async function
+    saveGameData();
   }, [hasWon, hasLost]);
 
   const handleGuess = async (guess: string) => {
