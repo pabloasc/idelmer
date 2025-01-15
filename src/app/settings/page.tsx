@@ -56,6 +56,11 @@ const SettingsPage = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.replace('/');
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24 font-forum">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm font-forum">
@@ -105,7 +110,7 @@ const SettingsPage = () => {
               Save Settings
             </button>
             <button
-              onClick={signOut}
+              onClick={handleSignOut}
               className="w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider transition-colors duration-200 hover:bg-red-500 hover:text-white font-forum"
             >
               Sign Out
