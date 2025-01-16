@@ -35,10 +35,10 @@ export const confirmHint = async ({
     
     const newRevealed = new Set(currentRevealed);
     newRevealed.add(hintLetter);
-    
+
     setGuesses(prev => [
       ...prev.slice(0, -1),
-      { ...prev[prev.length - 1], revealedLetters: newRevealed, guess: '' }
+      { ...prev[prev.length - 1], revealedLetters: newRevealed }
     ]);
     
     setScore(prev => Math.max(0, prev - 30));

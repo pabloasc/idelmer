@@ -34,6 +34,7 @@ const Home = () => {
   const [showHintConfirmation, setShowHintConfirmation] = useState<boolean>(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [showNextWordModal, setShowNextWordModal] = useState(false);
+  const [showWinLostModal, setShowWinLostModal] = useState(false);
   const [isWordLoaded, setIsWordLoaded] = useState<boolean>(false);
 
   const fetchDailyWord = async () => {
@@ -97,12 +98,7 @@ const Home = () => {
         timeTaken: timeTaken,
         hintsUsed: hintsUsed,
       });
-
-      if (score === 0) {
-        setHasLost(true);
-      } else if (won) {
-        setHasWon(true);
-      }
+      setShowWinLostModal(true);
     } catch (error) {
       console.error('Error saving score:', error);
       throw error; // Re-throw to handle in the calling function
@@ -137,6 +133,7 @@ const Home = () => {
 
   //Update DB score on win/loss
   useEffect(() => {
+    if (!hasWon && !hasLost) return;
     const saveGameData = async () => {
       try {
         await updateScore(hasWon);
@@ -280,7 +277,7 @@ const Home = () => {
                         ))}
                       </div>
 
-                      {hasWon && (
+                      {hasWon && showWinLostModal &&  (
                         <div className="mt-12">
                           <VictoryDisplay 
                             score={score} 
@@ -291,7 +288,7 @@ const Home = () => {
                         </div>
                       )}
 
-                      {hasLost && (
+                      {hasLost && showWinLostModal && (
                         <div className="mt-12">
                           <GameOverDisplay
                             word={currentWord}
