@@ -3,8 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
+interface IntUser {
+  id: string;
+  email: string;
+  username: string;
+  language: string;
+  totalScore?: number;
+  totalGames?: number;
+  gamesWon?: number;
+  currentStreak?: number;
+}
+
 const SettingsPage = () => {
-  const [user, setUser] = useState<{ id: string; email: string; username: string; language: string } | null>(null);
+  const [userDB, setUser] = useState<IntUser | null>(null);
   const [username, setUsername] = useState('');
   const [language, setLanguage] = useState('english');
   const { user: authUser, loading, signOut } = useAuth();
@@ -33,9 +44,9 @@ const SettingsPage = () => {
   }, [authUser, loading]);
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!userDB) return;
     try {
-      const response = await fetch(`/api/user?userId=${user.id}`, {
+      const response = await fetch(`/api/user?userId=${userDB.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -64,6 +75,29 @@ const SettingsPage = () => {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24 font-forum">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm font-forum">
+        {/* User Stats Section */}
+        <div className="mt-8 p-6 border-t-2 border-b-2 border-black">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto">
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold text-center font-forum">{userDB?.totalScore || 0}</span>
+              <span className="text-sm uppercase text-center tracking-wider text-gray-600 font-forum">Total Score</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold text-center font-forum">{userDB?.totalGames || 0}</span>
+              <span className="text-sm uppercase text-center tracking-wider text-gray-600 font-forum">Games Played</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold text-center font-forum">{userDB?.gamesWon || 0}</span>
+              <span className="text-sm uppercase text-center tracking-wider text-gray-600 font-forum">Victories</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-3xl font-bold text-center font-forum">{userDB?.currentStreak || 0}</span>
+              <span className="text-sm uppercase text-center tracking-wider text-gray-600 font-forum">Current Streak</span>
+            </div>
+          </div>
+        </div>
+        <br />
+        <br />
         <div className="text-center mb-8 font-forum">
           <h1 className="text-4xl font-bold mb-4 font-forum">Settings</h1>
         </div>
@@ -78,7 +112,7 @@ const SettingsPage = () => {
                   setUsername(e.target.value);
                 }
               }}
-              placeholder={user?.username || user?.email.split('@')[0]}
+              placeholder={userDB?.username || userDB?.email.split('@')[0]}
               className="mt-1 block w-full px-4 py-2 border-2 border-black rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-forum"
             />
           </div>
@@ -86,7 +120,7 @@ const SettingsPage = () => {
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="text"
-              value={user?.email || ''}
+              value={userDB?.email || ''}
               readOnly
               className="mt-1 block w-full px-4 py-2 border-2 border-black rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-forum"
             />

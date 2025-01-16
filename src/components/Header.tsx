@@ -2,31 +2,12 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 export default function Header() {
   const { user } = useAuth();
-  const [username, setUsername] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const fetchUsername = async () => {
-      if (!user) return;
-      try {
-        const response = await fetch(`/api/user?userId=${user.id}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch username');
-        }
-        const data = await response.json();
-        setUsername(data.username);
-      } catch (error) {
-        console.error('Error fetching username:', error);
-      }
-    };
-
-    fetchUsername();
-  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -101,9 +82,9 @@ export default function Header() {
                 Sign In
               </Link>
             )}
-            {user && username && (
+            {user && (
               <Link href="/settings" className="hidden md:block text-fuchsia-800 hover:text-fuchsia-600 px-3 py-2 rounded-md text-base font-semibold">
-                {username}
+                {user.email}
               </Link>
             )}
           </nav>
@@ -143,9 +124,9 @@ export default function Header() {
                   Sign In
                 </Link>
               )}
-              {user && username && (
+              {user && (
                 <Link href="/settings" className="block px-3 py-2 rounded-md text-base font-semibold text-fuchsia-800 hover:text-fuchsia-600 hover:text-gray-700 hover:bg-gray-100">
-                  {username}
+                  {user.email}
                 </Link>
               )}
             </div>
