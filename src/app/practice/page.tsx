@@ -70,6 +70,7 @@ const PracticePage = () => {
 
   const handleConfirmHint = () => {
     setShowHintConfirmation(false);
+    setUserInput([]);
     confirmHint({
       currentWord,
       guesses,
