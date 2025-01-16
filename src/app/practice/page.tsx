@@ -26,8 +26,10 @@ const PracticePage = () => {
   const [hasLost, setHasLost] = useState<boolean>(false);
   const [showHintConfirmation, setShowHintConfirmation] = useState<boolean>(false);
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'expert'>('easy');
+  const [userInput, setUserInput] = useState<string[]>([])
 
   const handleStartNewGame = () => {
+    setUserInput([]);
     startNewGame({
       difficulty,
       setCurrentWord,
@@ -64,10 +66,6 @@ const PracticePage = () => {
   const handleHint = () => {
     if (!currentWord || score <= 0 || hasWon || hasLost) return;
     setShowHintConfirmation(true);
-  };
-
-  const handlePlayAgain = () => {
-    window.location.reload();
   };
 
   const handleConfirmHint = () => {
@@ -144,7 +142,7 @@ const PracticePage = () => {
             ) : hasLost ? (
               <GameOverDisplay word={currentWord} 
               attempts={attempts}
-              onPlayAgain={handlePlayAgain}/>
+              onPlayAgain={handleStartNewGame}/>
             ) : (
               <>
                 <div className="space-y-4 font-forum">
@@ -154,6 +152,8 @@ const PracticePage = () => {
                       word={currentWord}
                       revealedLetters={guessState.revealedLetters}
                       letterColors={letterColors}
+                      userInput={userInput}
+                      setUserInput={setUserInput}
                       onGuess={index === guesses.length - 1 ? handleGuess : undefined}
                       guess={guessState.guess}
                       isActive={index === guesses.length - 1}

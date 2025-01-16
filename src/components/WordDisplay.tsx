@@ -7,6 +7,8 @@ interface WordDisplayProps {
   word: string;
   revealedLetters: Set<string>;
   letterColors: { [key: string]: string };
+  userInput: string[];
+  setUserInput: React.Dispatch<React.SetStateAction<string[]>>;
   onGuess?: (guess: string) => void;
   guess?: string;
   isActive?: boolean;
@@ -15,12 +17,13 @@ interface WordDisplayProps {
 const WordDisplay = ({ 
   word, 
   revealedLetters, 
-  letterColors, 
+  letterColors,
+  userInput,
+  setUserInput,
   onGuess,
   guess = '',
   isActive = true
 }: WordDisplayProps) => {
-  const [userInput, setUserInput] = useState<string[]>([]);
   const [isFocused, setIsFocused] = useState(isActive);
   const inputRef = useRef<HTMLInputElement>(null);
   

@@ -38,6 +38,10 @@ export const handleGuessCommon = (
   const newScore = Math.max(0, score - 20);
   setScore(newScore);
 
+  if(newScore === 0) {
+    setHasLost(true)
+  }
+
   const newRevealed = new Set(guesses[guesses.length - 1].revealedLetters);
 
   // Check exact matches

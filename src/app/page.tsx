@@ -36,6 +36,7 @@ const Home = () => {
   const [showNextWordModal, setShowNextWordModal] = useState(false);
   const [showWinLostModal, setShowWinLostModal] = useState(false);
   const [isWordLoaded, setIsWordLoaded] = useState<boolean>(false);
+  const [userInput, setUserInput] = useState<string[]>([])
 
   const fetchDailyWord = async () => {
     if (!user) return;
@@ -177,6 +178,7 @@ const Home = () => {
   const handleConfirmHint = () => {
     setShowHintConfirmation(false);
     setHintsUsed(prev => prev + 1);
+    setUserInput([]);
     confirmHint({
       currentWord,
       guesses,
@@ -270,6 +272,8 @@ const Home = () => {
                             word={currentWord}
                             revealedLetters={guessState.revealedLetters}
                             letterColors={letterColors}
+                            userInput={userInput}
+                            setUserInput={setUserInput}
                             onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
                             guess={guessState.guess}
                             isActive={!hasWon && !hasLost && index === guesses.length - 1}
@@ -304,7 +308,6 @@ const Home = () => {
                       onConfirm={handleConfirmHint}
                       onCancel={() => setShowHintConfirmation(false)}
                     />
-                    
                   </div>
                 </div>
               )}
