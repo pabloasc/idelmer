@@ -71,19 +71,7 @@ const WordDisplay = ({
     if (!isActive || !onGuess) return;
 
     if (e.key === 'Enter') {
-      if (userInput.length === 0) return; // Don't submit if no input
-      
-      const fullGuess = word.split('').map((letter, index) => {
-        const pos = letterPositions[index];
-        if (pos.isRevealed) {
-          return letter;
-        }
-        const inputIndex = emptyPositions.findIndex(p => p.index === index);
-        return userInput[inputIndex] || '_';
-      }).join('');
-      
-      onGuess(fullGuess);
-      setUserInput([]);
+      handleSubmit();
     } else if (e.key === 'Backspace') {
       e.preventDefault(); // Prevent default backspace behavior
       if (userInput.length > 0) {
@@ -228,6 +216,7 @@ const WordDisplay = ({
             onClick={handleSubmit}
             className="mt-4 border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
               transition-colors duration-200 hover:bg-black hover:text-white font-forum"
+            type="button"
           >
             Submit Guess
           </button>
