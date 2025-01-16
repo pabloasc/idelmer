@@ -125,18 +125,32 @@ const WordDisplay = ({
     return inputIndex !== -1 ? userInput[inputIndex] || '' : '';
   };
 
+  const handleSubmit = () => {
+    if (!isActive || !onGuess || userInput.length === 0) return;
+    
+    const fullGuess = word.split('').map((letter, index) => {
+      const pos = letterPositions[index];
+      if (pos.isRevealed) {
+        return letter;
+      }
+      const inputIndex = emptyPositions.findIndex(p => p.index === index);
+      return userInput[inputIndex] || '_';
+    }).join('');
+    
+    onGuess(fullGuess);
+    setUserInput([]);
+  };
+
   return (
     <>
       <svg width="0" height="0" style={{ position: 'absolute' }}>
-        <defs>
-          {Array.from(letterPatterns.entries()).map(([letter]) => {
-            const pattern = getPatternForLetter(letter, word.toLowerCase());
-            return React.cloneElement(pattern.pattern as React.ReactElement, {
-              key: letter,
-              id: `pattern-${letter}`,
-            });
-          })}
-        </defs>
+        {Array.from(letterPatterns.entries()).map(([letter]) => {
+          const pattern = getPatternForLetter(letter, word.toLowerCase());
+          return React.cloneElement(pattern.pattern as React.ReactElement, {
+            key: letter,
+            id: `pattern-${letter}`,
+          });
+        })}
       </svg>
       <div 
         className={`flex flex-col items-center gap-2 ${!isActive ? 'opacity-60' : ''}`}
@@ -203,10 +217,21 @@ const WordDisplay = ({
                     )}
                   </div>
                 </div>
+                
               </div>
             );
           })}
         </div>
+        
+        {isActive && userInput.length > 0 && (
+          <button
+            onClick={handleSubmit}
+            className="mt-4 border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+              transition-colors duration-200 hover:bg-black hover:text-white font-forum"
+          >
+            Submit Guess
+          </button>
+        )}
       </div>
     </>
   );
