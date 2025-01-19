@@ -33,7 +33,7 @@ export default function HowToPlay() {
       >
         {/* Header */}
         <motion.div variants={itemVariants} className="text-center mb-12">
-          <h1 className="text-4xl font-forum italic font-bold mb-4">How to Play</h1>
+          <h1 className="text-4xl font-forum font-bold mb-4">How to Play</h1>
           <p className="text-gray-600 font-serif">
             Master the art of word discovery with our elegant puzzle game
           </p>
