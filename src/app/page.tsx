@@ -207,7 +207,7 @@ const Home = () => {
           <img 
             src="/images/idelmer_main.png"
             alt="Idelmer Game Logo"
-            width={300}
+            width={250}
             className="mx-auto"
           />
         </div>

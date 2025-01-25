@@ -2,7 +2,6 @@
 export const fetchCache = 'force-no-store'
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LeaderboardEntry {
@@ -83,31 +82,29 @@ const LeaderboardPage = () => {
     return (
       <div className="w-full max-w-4xl mx-auto">
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          <table className="w-full">
+          <table className="w-full font-forum">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attempts</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Rank</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Player</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Score</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Attempts</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Time</th>
                 {activeTab === 'allTime' && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Date</th>
                 )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {entries.map((entry, index) => (
                 <tr key={index} className={index < 3 ? 'bg-yellow-50' : ''}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {index + 1}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.username}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.score}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.attempts}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatTime(entry.timeTaken)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 font-forum">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{entry.username}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{entry.score}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{entry.attempts}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{formatTime(entry.timeTaken)}</td>
                   {activeTab === 'allTime' && entry.date && (
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">
                       {new Date(entry.date).toLocaleDateString()}
                     </td>
                   )}
@@ -134,28 +131,26 @@ const LeaderboardPage = () => {
     return (
       <div className="w-full max-w-4xl mx-auto">
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-          <table className="w-full">
+          <table className="w-full font-forum">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Score</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Games Won</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Games Played</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Streak</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Rank</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Player</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Total Score</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Games Won</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Games Played</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-forum">Current Streak</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {entries.map((entry, index) => (
                 <tr key={index} className={index < 3 ? 'bg-yellow-50' : ''}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {index + 1}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.username}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.score}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.gamesWon}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.gamesPlayed}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{entry.currentStreak}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 font-forum">{index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{entry.username}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{entry.score}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{entry.gamesWon}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{entry.gamesPlayed}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-forum">{entry.currentStreak}</td>
                 </tr>
               ))}
             </tbody>
@@ -169,7 +164,7 @@ const LeaderboardPage = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col items-center justify-center">
         <div className="mt-12 mb-16">
-          <Image 
+          <img 
             src="/images/idelmer_main.png"
             alt="Idelmer Game Logo"
             width={250}
