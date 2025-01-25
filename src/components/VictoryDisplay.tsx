@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface VictoryDisplayProps {
   score: number;
@@ -56,6 +57,13 @@ const VictoryDisplay = ({ score, attempts, timeTaken, isPractice = false }: Vict
         transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
         className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md mx-4"
       >
+          <Image 
+            src="/images/idelmer_won.png"
+            alt="Victory!"
+            width={100}
+            height={120}
+            className="mx-auto"
+          />
         <h2 className="font-playfair italic text-4xl mb-6">{message.title}</h2>
         <div className="space-y-4 mb-8">
           <p className="text-xl">{message.subtitle}</p>

@@ -9,6 +9,7 @@ import HintConfirmationModal from '@/components/HintConfirmationModal';
 import { startNewGame } from '@/utils/startNewGame';
 import { confirmHint } from '@/utils/confirmHint';
 import { handleGuessCommon } from '@/utils/handleGuess';
+import Image from 'next/image';
 
 interface GuessState {
   guess: string;
@@ -81,7 +82,7 @@ const PracticePage = () => {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-24 font-forum">
+    <main className="flex min-h-screen flex-col items-center justify-between p-4 sm:p-6 font-forum">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm font-forum">
         <div className="mb-8 flex justify-between items-center font-forum">
           <div></div>
@@ -104,6 +105,15 @@ const PracticePage = () => {
               New Game
             </button>
           </div>
+        </div>
+        <div className="mt-12 mb-16">
+          <Image 
+            src="/images/idelmer_practice.png"
+            alt="Idelmer Game Logo"
+            width={250}
+            height={120}
+            className="mx-auto"
+          />
         </div>
 
         <div className="text-center mb-8 font-forum">

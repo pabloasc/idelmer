@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 interface GameOverDisplayProps {
   word: string;
@@ -23,30 +24,33 @@ const GameOverDisplay = ({ word, attempts, onPlayAgain }: GameOverDisplayProps) 
         transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
         className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md mx-4"
       >
-        <h2 className="font-playfair italic text-4xl mb-6">Game Over</h2>
-        <div className="space-y-4 mb-8">
-          <p className="text-xl">The word was:</p>
-          <p className="text-3xl font-bold font-serif">{word}</p>
-          <div className="text-center mt-6">
-            <div className="text-3xl font-bold">{attempts}</div>
-            <div className="text-sm uppercase tracking-wider text-gray-600">
-              {attempts === 1 ? 'Attempt' : 'Attempts'}
-            </div>
-          </div>
+        <div className="mb-8">
+          <Image 
+            src="/images/idelmer_lost.png"
+            alt="Game Over"
+            width={100}
+            height={100}
+            className="mx-auto"
+          />
         </div>
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-        >
-          <button 
+
+        <div className="space-y-4">
+          <h2 className="text-4xl font-bold mb-4 font-forum">Game Over</h2>
+          <p className="text-xl mb-6 font-forum">The word was: {word}</p>
+          <p className="text-lg text-gray-600 mb-6 font-forum">
+            You used {attempts} {attempts === 1 ? 'attempt' : 'attempts'}
+          </p>
+        </div>
+
+        <div className="flex justify-center">
+          <button
             onClick={onPlayAgain}
-            className="w-full border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
-              transition-colors duration-200 hover:bg-black hover:text-white"
+            className="border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+              transition-colors duration-200 hover:bg-black hover:text-white font-forum"
           >
             Try Again
           </button>
-        </motion.div>
+        </div>
       </motion.div>
     </motion.div>
   );

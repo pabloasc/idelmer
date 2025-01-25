@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import SignInForm from '@/components/auth/SignInForm';
 import { createOrUpdateScore } from '@/services/userService';
 import Link from 'next/link';
+import Image from 'next/image';
 import { generateColors } from '@/utils/generateColors';
 import { confirmHint } from '@/utils/confirmHint';
 import { handleGuessCommon } from '@/utils/handleGuess';
@@ -201,143 +202,154 @@ const Home = () => {
   }
 
   return (
-    <>
-      <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 font-forum">
-        <div className="z-10 w-full max-w-5xl items-center justify-between font-forum text-sm">
-          {loading ? (
-            <div className="text-center">Loading...</div>
-          ) : user ? (
-            <div>
-              {showNextWordModal ? (
-                <div className="text-center mb-8">
-                  <h1 className="text-2xl font-bold mb-4">You&#39;ve already played today&#39;s challenge!</h1>
-                  <p className="text-gray-600 mb-6">
-                    Come back tomorrow for a new word. In the meantime, you can practice with random words in our practice mode.
-                  </p>
-                  <div className="flex justify-center">
-                    <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
-                      <Link
-                        href="/practice"
-                        className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
-                          transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
-                      >
-                        Go to <br/>Practice Area
-                      </Link>
-                      <Link
-                        href="/leaderboard"
-                        className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
-                          transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
-                      >
-                        View the Leaderboard
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="text-center mb-8">
-                    <h1 className="text-4xl font-bold mb-4">Daily word</h1>
-                    <p className="text-gray-600">Challenge yourself to guess the daily word</p>
-                  </div>
-                  <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
-                    {/* Game Controls Section */}
-                    <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
-                      <ScoreDisplay attempts={attempts} score={score} />
-                      
-                      <div className="flex justify-center font-forum">
-                        <button
-                          onClick={handleHint}
-                          disabled={score <= 0 || hasWon || hasLost || score <= 30}
-                          className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
-                            transition-colors duration-200 ${
-                              score > 0 && !hasWon && !hasLost && score >= 30
-                                ? 'hover:bg-black hover:text-white'
-                                : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                            } font-forum`}
-                        >
-                          Request a Hint
-                          <span className="block text-xs mt-1 font-serif text-gray-600 font-forum">
-                            -30 Points
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                    
-                    {/* Game Board Section */}
-                    <div className="max-w-3xl mx-auto">
-                      <div className="flex flex-col gap-4">
-                        {guesses.map((guessState, index) => (
-                          <WordDisplay
-                            key={index}
-                            word={currentWord}
-                            revealedLetters={guessState.revealedLetters}
-                            letterColors={letterColors}
-                            userInput={userInput}
-                            setUserInput={setUserInput}
-                            onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
-                            guess={guessState.guess}
-                            isActive={!hasWon && !hasLost && index === guesses.length - 1}
-                          />
-                        ))}
-                      </div>
-
-                      {hasWon && showWinLostModal &&  (
-                        <div className="mt-12">
-                          <VictoryDisplay 
-                            score={score} 
-                            attempts={attempts} 
-                            timeTaken={startTime ? Math.floor((Date.now() - startTime) / 1000) : 0} 
-                            isPractice={false} 
-                          />
-                        </div>
-                      )}
-
-                      {hasLost && showWinLostModal && (
-                        <div className="mt-12">
-                          <GameOverDisplay
-                            word={currentWord}
-                            attempts={attempts}
-                            onPlayAgain={handlePlayAgain}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <HintConfirmationModal
-                      isOpen={showHintConfirmation}
-                      onConfirm={handleConfirmHint}
-                      onCancel={() => setShowHintConfirmation(false)}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-8">
-              <div className="flex flex-col gap-4 w-full max-w-md">
-              <Link
-                  href="/practice"
-              className={`w-full px-6 py-3 border-2 border-black text-sm uppercase text-center
-                transition-colors duration-200 ${
-                  true
-                    ? 'hover:bg-black hover:text-white'
-                    : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                } font-forum`}
-            >
-                  Practice Area
-                </Link>
-                <div className="text-center text-gray-500 font-bold">- or -</div>
-                <SignInForm />
-              </div>
-            </div>
-          )}
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col items-center justify-center">
+        <div className="mt-12 mb-16">
+          <Image 
+            src="/images/idelmer_main.png"
+            alt="Idelmer Game Logo"
+            width={300}
+            height={120}
+            className="mx-auto"
+          />
         </div>
+        <main className="flex min-h-screen flex-col items-center font-forum">
+          <div className="z-10 w-full max-w-5xl items-center justify-between font-forum text-sm">
+            {loading ? (
+              <div className="text-center">Loading...</div>
+            ) : user ? (
+              <div>
+                {showNextWordModal ? (
+                  <div className="text-center mb-8">
+                    <h1 className="text-2xl font-bold mb-4">You&#39;ve already played today&#39;s challenge!</h1>
+                    <p className="text-gray-600 mb-6">
+                      Come back tomorrow for a new word. In the meantime, you can practice with random words in our practice mode.
+                    </p>
+                    <div className="flex justify-center">
+                      <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+                        <Link
+                          href="/practice"
+                          className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                            transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
+                        >
+                          Go to <br/>Practice Area
+                        </Link>
+                        <Link
+                          href="/leaderboard"
+                          className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                            transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
+                        >
+                          View the Leaderboard
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-center mb-8">
+                      <h1 className="text-4xl font-bold mb-4">Daily word</h1>
+                      <p className="text-gray-600">Challenge yourself to guess the daily word</p>
+                    </div>
+                    <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
+                      {/* Game Controls Section */}
+                      <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
+                        <ScoreDisplay attempts={attempts} score={score} />
+                        
+                        <div className="flex justify-center font-forum">
+                          <button
+                            onClick={handleHint}
+                            disabled={score <= 0 || hasWon || hasLost || score <= 30}
+                            className={`w-full max-w-xs border-2 border-black px-6 py-2 text-sm uppercase tracking-wider
+                              transition-colors duration-200 ${
+                                score > 0 && !hasWon && !hasLost && score >= 30
+                                  ? 'hover:bg-black hover:text-white'
+                                  : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                              } font-forum`}
+                          >
+                            Request a Hint
+                            <span className="block text-xs mt-1 font-serif text-gray-600 font-forum">
+                              -30 Points
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                      
+                      {/* Game Board Section */}
+                      <div className="max-w-3xl mx-auto">
+                        <div className="flex flex-col gap-4">
+                          {guesses.map((guessState, index) => (
+                            <WordDisplay
+                              key={index}
+                              word={currentWord}
+                              revealedLetters={guessState.revealedLetters}
+                              letterColors={letterColors}
+                              userInput={userInput}
+                              setUserInput={setUserInput}
+                              onGuess={!hasWon && !hasLost && index === guesses.length - 1 ? handleGuess : undefined}
+                              guess={guessState.guess}
+                              isActive={!hasWon && !hasLost && index === guesses.length - 1}
+                            />
+                          ))}
+                        </div>
 
-        {error && (
-          <div className="text-center text-red-500">{error}</div>
-        )}
-      </main>
-    </>
+                        {hasWon && showWinLostModal &&  (
+                          <div className="mt-12">
+                            <VictoryDisplay 
+                              score={score} 
+                              attempts={attempts} 
+                              timeTaken={startTime ? Math.floor((Date.now() - startTime) / 1000) : 0} 
+                              isPractice={false} 
+                            />
+                          </div>
+                        )}
+
+                        {hasLost && showWinLostModal && (
+                          <div className="mt-12">
+                            <GameOverDisplay
+                              word={currentWord}
+                              attempts={attempts}
+                              onPlayAgain={handlePlayAgain}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <HintConfirmationModal
+                        isOpen={showHintConfirmation}
+                        onConfirm={handleConfirmHint}
+                        onCancel={() => setShowHintConfirmation(false)}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-8">
+                <div className="flex flex-col gap-4 w-full max-w-md">
+                <Link
+                    href="/practice"
+                className={`w-full px-6 py-3 border-2 border-black text-sm uppercase text-center
+                  transition-colors duration-200 ${
+                    true
+                      ? 'hover:bg-black hover:text-white'
+                      : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
+                  } font-forum`}
+              >
+                    Practice Area
+                  </Link>
+                  <div className="text-center text-gray-500 font-bold">- or -</div>
+                  <SignInForm />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {error && (
+            <div className="text-center text-red-500">{error}</div>
+          )}
+        </main>
+      </div>
+    </div>
   );
 }
 
