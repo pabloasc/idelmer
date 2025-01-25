@@ -10,7 +10,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import SignInForm from '@/components/auth/SignInForm';
 import { createOrUpdateScore } from '@/services/userService';
 import Link from 'next/link';
-import Image from 'next/image';
 import { generateColors } from '@/utils/generateColors';
 import { confirmHint } from '@/utils/confirmHint';
 import { handleGuessCommon } from '@/utils/handleGuess';
@@ -205,11 +204,10 @@ const Home = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col items-center justify-center">
         <div className="mt-12 mb-16">
-          <Image 
+          <img 
             src="/images/idelmer_main.png"
             alt="Idelmer Game Logo"
             width={300}
-            height={120}
             className="mx-auto"
           />
         </div>

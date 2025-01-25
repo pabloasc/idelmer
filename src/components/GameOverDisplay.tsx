@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 
 interface GameOverDisplayProps {
   word: string;
@@ -25,7 +24,7 @@ const GameOverDisplay = ({ word, attempts, onPlayAgain }: GameOverDisplayProps) 
         className="bg-white p-8 rounded-lg shadow-xl text-center max-w-md mx-4"
       >
         <div className="mb-8">
-          <Image 
+          <img 
             src="/images/idelmer_lost.png"
             alt="Game Over"
             width={100}
@@ -36,8 +35,8 @@ const GameOverDisplay = ({ word, attempts, onPlayAgain }: GameOverDisplayProps) 
 
         <div className="space-y-4">
           <h2 className="text-4xl font-bold mb-4 font-forum">Game Over</h2>
-          <p className="text-xl mb-6 font-forum">The word was: {word}</p>
-          <p className="text-lg text-gray-600 mb-6 font-forum">
+          <p className="text-xl mb-6 font-forum">The word was: <strong>{word}</strong></p>
+          <p className="text-lg text-gray-600 mb-6 p-2 font-forum">
             You used {attempts} {attempts === 1 ? 'attempt' : 'attempts'}
           </p>
         </div>
