@@ -140,7 +140,7 @@ export async function getUserStats(userId: string) {
 export async function getLeaderboard() {
   try {
     const timestamp = new Date().getTime();
-    const response = await fetch(`/api/leaderboard?t=${timestamp}`, {
+    const response = await fetch(`/api/leaderboard/daily?t=${timestamp}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
