@@ -1,5 +1,7 @@
 'use client';
-export const fetchCache = 'force-no-store'
+export const fetchCache = 'force-no-store';
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,8 +34,17 @@ const LeaderboardPage = () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch daily leaderboard
-        const dailyResponse = await fetch('/api/leaderboard/daily');
+        // Fetch daily leaderboard with no-cache headers
+        const dailyResponse = await fetch('/api/leaderboard/daily', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          next: {
+            revalidate: 0
+          }
+        });
         if (!dailyResponse.ok) {
           throw new Error(`Daily leaderboard error: ${dailyResponse.statusText}`);
         }
@@ -41,8 +52,17 @@ const LeaderboardPage = () => {
         console.log('Daily leaderboard data:', dailyData);
         setDailyLeaderboard(dailyData);
 
-        // Change this URL to match our implemented endpoint
-        const allTimeResponse = await fetch('/api/leaderboard/all-time');
+        // Fetch all-time leaderboard with no-cache headers
+        const allTimeResponse = await fetch('/api/leaderboard/all-time', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          next: {
+            revalidate: 0
+          }
+        });
         if (!allTimeResponse.ok) {
           throw new Error(`All-time leaderboard error: ${allTimeResponse.statusText}`);
         }
@@ -58,6 +78,12 @@ const LeaderboardPage = () => {
     };
 
     fetchLeaderboards();
+
+    // Set up an interval to refresh the data every 30 seconds
+    const intervalId = setInterval(fetchLeaderboards, 30000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const formatTime = (seconds: number) => {
