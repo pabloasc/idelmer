@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 export async function GET() {
   try {
     // Get today's date at midnight UTC
@@ -21,7 +24,16 @@ export async function GET() {
 
     if (!todayWord) {
       console.log('No daily word found for today:', today.toISOString());
-      return NextResponse.json([]);
+      return new NextResponse(JSON.stringify([]), {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'CDN-Cache-Control': 'no-store',
+          'Cache-Tag': 'leaderboard',
+          'Surrogate-Control': 'no-store',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
     }
 
     console.log('Found daily word:', {
@@ -68,12 +80,31 @@ export async function GET() {
       date: score.createdAt.toISOString()
     }));
 
-    return NextResponse.json(leaderboardData);
+    return new NextResponse(JSON.stringify(leaderboardData), {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'CDN-Cache-Control': 'no-store',
+        'Cache-Tag': 'leaderboard',
+        'Surrogate-Control': 'no-store',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
   } catch (error) {
     console.error('Error fetching daily leaderboard:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch leaderboard' },
-      { status: 500 }
+    return new NextResponse(
+      JSON.stringify({ error: 'Failed to fetch leaderboard' }), 
+      { 
+        status: 500,
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'CDN-Cache-Control': 'no-store',
+          'Cache-Tag': 'leaderboard',
+          'Surrogate-Control': 'no-store',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      }
     );
   }
 } 
