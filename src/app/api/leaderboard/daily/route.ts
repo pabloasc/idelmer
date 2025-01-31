@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
 
 export async function GET() {
   try {
@@ -26,13 +24,8 @@ export async function GET() {
       console.log('No daily word found for today:', today.toISOString());
       return new NextResponse(JSON.stringify([]), {
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'CDN-Cache-Control': 'no-store',
-          'Cache-Tag': 'leaderboard',
-          'Surrogate-Control': 'no-store',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+            'Content-Type': 'application/json',
+        },
       });
     }
 
@@ -81,14 +74,9 @@ export async function GET() {
     }));
 
     return new NextResponse(JSON.stringify(leaderboardData), {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'CDN-Cache-Control': 'no-store',
-        'Cache-Tag': 'leaderboard',
-        'Surrogate-Control': 'no-store',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
+        headers: {
+            'Content-Type': 'application/json',
+        },
     });
   } catch (error) {
     console.error('Error fetching daily leaderboard:', error);
@@ -97,13 +85,8 @@ export async function GET() {
       { 
         status: 500,
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'CDN-Cache-Control': 'no-store',
-          'Cache-Tag': 'leaderboard',
-          'Surrogate-Control': 'no-store',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+            'Content-Type': 'application/json',
+        },
       }
     );
   }

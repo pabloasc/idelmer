@@ -1,8 +1,4 @@
 'use client';
-export const fetchCache = 'force-no-store';
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -35,11 +31,10 @@ const LeaderboardPage = () => {
       setError(null);
       try {
         // Fetch daily leaderboard with no-cache headers
-        const dailyResponse = await fetch('/api/leaderboard/daily', {
+        const dailyResponse = await fetch(`/api/leaderboard/daily/?t=${new Date().getTime()}`, {
           cache: 'no-store',
           headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+            'Content-Type': 'application/json',
           },
           next: {
             revalidate: 0
@@ -53,11 +48,10 @@ const LeaderboardPage = () => {
         setDailyLeaderboard(dailyData);
 
         // Fetch all-time leaderboard with no-cache headers
-        const allTimeResponse = await fetch('/api/leaderboard/all-time', {
+        const allTimeResponse = await fetch(`/api/leaderboard/all-time/?t=${new Date().getTime()}`, {
           cache: 'no-store',
           headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+            'Content-Type': 'application/json',
           },
           next: {
             revalidate: 0
