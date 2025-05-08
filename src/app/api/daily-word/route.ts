@@ -102,7 +102,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(
-      { error: 'Failed to fetch daily word' },
+      { error: 'Failed to fetch daily word :(' },
       { status: 500 }
     );
   } finally {

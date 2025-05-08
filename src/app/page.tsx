@@ -8,6 +8,7 @@ import GameOverDisplay from '@/components/GameOverDisplay';
 import HintConfirmationModal from '@/components/HintConfirmationModal';
 import { useAuth } from '@/contexts/AuthContext';
 import SignInForm from '@/components/auth/SignInForm';
+import GuestPlayForm from '@/components/auth/GuestPlayForm';
 import { createOrUpdateScore } from '@/services/userService';
 import Link from 'next/link';
 import { generateColors } from '@/utils/generateColors';
@@ -21,6 +22,8 @@ interface GuessState {
 
 const Home = () => {
   const { user, loading } = useAuth();
+  const [isGuest, setIsGuest] = useState(false);
+  const [guestName, setGuestName] = useState<string>("");
   const [currentWord, setCurrentWord] = useState<string>('');
   const [currentWordId, setCurrentWordId] = useState<number>(0);
   const [guesses, setGuesses] = useState<GuessState[]>([]);
@@ -39,9 +42,15 @@ const Home = () => {
   const [userInput, setUserInput] = useState<string[]>([])
 
   const fetchDailyWord = async () => {
-    if (!user) return;
+    // For guest, skip user check
+    if (!user && !isGuest) return;
     try {
-      const response = await fetch(`/api/daily-word?userId=${user.id}`);
+      let url = '/api/daily-word';
+      if (user) {
+        url += `?userId=${user.id}`;
+      }
+      // For guest, do not append userId
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch daily word');
       
       const data = await response.json();
@@ -82,7 +91,7 @@ const Home = () => {
     }
   };
 
-  const updateScore = async (won: boolean): Promise<void> => {
+const updateScore = async (won: boolean): Promise<void> => {
     const timeTaken = startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
     
     if (!currentWordId) {
@@ -108,7 +117,7 @@ const Home = () => {
 
   useEffect(() => {
     const fetchWithRetry = async (retries = 3, delay = 1000) => {
-      if (!user) return; // Don't fetch if user is not logged in
+      if (!user && !isGuest) return; // Don't fetch if not logged in or guest
       
       for (let i = 0; i < retries; i++) {
         try {
@@ -127,10 +136,10 @@ const Home = () => {
       setError('Unable to load today\'s word after multiple attempts. Please try again later.');
     };
 
-    if (user && (!currentWord || !startTime)) {
+    if ((user || isGuest) && (!currentWord || !startTime)) {
       fetchWithRetry();
     }
-  }, [user]); // Add user as dependency
+  }, [user, isGuest]); // Add isGuest as dependency
 
   //Update DB score on win/loss
   useEffect(() => {
@@ -192,7 +201,7 @@ const Home = () => {
     window.location.reload();
   };
 
-  if (!isWordLoaded && user) {
+  if (!isWordLoaded && (user || isGuest)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <span className="text-xl text-gray-700 font-forum">Loading...</span>
@@ -215,7 +224,7 @@ const Home = () => {
           <div className="z-10 w-full max-w-5xl items-center justify-between font-forum text-sm">
             {loading ? (
               <div className="text-center">Loading...</div>
-            ) : user ? (
+            ) : (user || isGuest) ? (
               <div>
                 {showNextWordModal ? (
                   <div className="text-center mb-8">
@@ -247,6 +256,9 @@ const Home = () => {
                     <div className="text-center mb-8">
                       <h1 className="text-4xl font-bold mb-4">Daily word</h1>
                       <p className="text-gray-600">Challenge yourself to guess the daily word</p>
+                      {isGuest && guestName && (
+                        <div className="text-lg font-bold mt-2 text-gray-700">Playing as: {guestName}</div>
+                      )}
                     </div>
                     <div className="max-w-2xl mx-auto mb-12 space-y-8 font-forum">
                       {/* Game Controls Section */}
@@ -322,23 +334,24 @@ const Home = () => {
                 )}
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-8">
-                <div className="flex flex-col gap-4 w-full max-w-md">
-                <Link
-                    href="/practice"
-                className={`w-full px-6 py-3 border-2 border-black text-sm uppercase text-center
-                  transition-colors duration-200 ${
-                    true
-                      ? 'hover:bg-black hover:text-white'
-                      : 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400'
-                  } font-forum`}
-              >
-                    Practice Area
-                  </Link>
-                  <div className="text-center text-gray-500 font-bold">- or -</div>
-                  <SignInForm />
-                </div>
-              </div>
+               <div className="flex flex-col items-center gap-8">
+                 <div className="flex flex-col gap-4 w-full max-w-md">
+                   <Link
+                     href="/practice"
+                     className={`w-full px-6 py-3 border-2 border-black text-sm uppercase text-center
+                       transition-colors duration-200 hover:bg-black hover:text-white font-forum`}
+                   >
+                     Practice Area
+                   </Link>
+                   <div className="text-center text-gray-500 font-bold">- or -</div>
+                   <GuestPlayForm onPlay={(name) => {
+                     setIsGuest(true);
+                     setGuestName(name);
+                   }} />
+                   <div className="text-center text-gray-500 font-bold">- or -</div>
+                   <SignInForm />
+                 </div>
+               </div>
             )}
           </div>
 
@@ -350,5 +363,4 @@ const Home = () => {
     </div>
   );
 }
-
 export default Home;

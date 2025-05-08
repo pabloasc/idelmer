@@ -12,7 +12,7 @@ model DailyWord {
   word      String
   date      DateTime @unique @map("date") @db.Date
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now())
   scores    Score[]
 }
 
